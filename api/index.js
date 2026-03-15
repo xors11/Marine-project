@@ -76,7 +76,7 @@ app.get("/api/buoy", async (req, res) => {
 
 // ─── /api/buoy-historical (CSV) ─────────────────────────────────────────────
 app.get("/api/buoy-historical", (req, res) => {
-    const filePath = path.join(process.cwd(), "data", "46042_master_2012_2023.csv");
+    const filePath = path.join(__dirname, "..", "data", "46042_master_2012_2023.csv");
     const results = [];
 
     if (!fs.existsSync(filePath)) {
@@ -97,7 +97,7 @@ app.get("/api/buoy-historical", (req, res) => {
 
 // ─── /api/fisheries (Unified Risk Framework) ───────────────────────────────
 app.get("/api/fisheries", async (req, res) => {
-    const filePath = path.join(process.cwd(), "data", "fisheries_indian_region_2023.csv");
+    const filePath = path.join(__dirname, "..", "data", "fisheries_indian_region_2023.csv");
     const regionQuery = req.query.region?.toLowerCase();
     const results = [];
 
@@ -191,11 +191,11 @@ let cycloneSummaryCache = null;
 let cycloneTracksCache = null;
 
 try {
-    const summaryPath = path.join(process.cwd(), "data", "cyclone_summary_NI.json");
+    const summaryPath = path.join(__dirname, "..", "data", "cyclone_summary_NI.json");
     if (fs.existsSync(summaryPath)) {
         cycloneSummaryCache = JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
     }
-    const tracksPath = path.join(process.cwd(), "data", "cyclone_tracks_NI.json");
+    const tracksPath = path.join(__dirname, "..", "data", "cyclone_tracks_NI.json");
     if (fs.existsSync(tracksPath)) {
         cycloneTracksCache = JSON.parse(fs.readFileSync(tracksPath, "utf-8"));
     }
