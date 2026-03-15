@@ -99,30 +99,30 @@ function Sparkline({ values, color }) {
 function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, stats, sparklineValues, formatValue }) {
     const formattedValue = value != null ? formatValue(value) : '—';
     return (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-4" style={{ borderLeft: `4px solid ${borderColor}`, position: 'relative', overflow: 'hidden' }}>
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">{label}</div>
-            <div className="text-3xl font-bold" style={{ color }}>
+        <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 md:p-4" style={{ borderLeft: `4px solid ${borderColor}`, position: 'relative', overflow: 'hidden' }}>
+            <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider mb-1 font-bold">{label}</div>
+            <div className="text-4xl md:text-3xl font-black md:font-bold leading-tight" style={{ color }}>
                 {formattedValue}
-                <span className="text-sm font-normal ml-1" style={{ opacity: 0.7 }}>{unit}</span>
+                <span className="text-sm md:text-base font-medium ml-1" style={{ opacity: 0.8 }}>{unit}</span>
             </div>
             {/* Trend badge */}
-            <span className={`text-xs px-2 py-0.5 rounded-md font-medium inline-block mt-1 mb-2 ${delta.bg} ${delta.textColor}`}>
+            <span className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md font-bold inline-block mt-2 mb-3 ${delta.bg} ${delta.textColor}`}>
                 {delta.text}
             </span>
             {/* Stats row */}
             {stats && (
-                <div className="flex gap-3 border-t border-slate-700 pt-2 mt-1">
+                <div className="flex gap-4 border-t border-slate-700/50 pt-3 mt-1">
                     <div>
-                        <div className="text-xs text-slate-500">Min</div>
-                        <div className="text-xs font-medium text-slate-300">{stats.min != null ? formatValue(stats.min) : '—'}</div>
+                        <div className="text-[10px] text-slate-500 font-bold">Min</div>
+                        <div className="text-xs font-bold text-slate-300">{stats.min != null ? formatValue(stats.min) : '—'}</div>
                     </div>
                     <div>
-                        <div className="text-xs text-slate-500">Mean</div>
-                        <div className="text-xs font-medium text-slate-300">{stats.mean != null ? formatValue(stats.mean) : '—'}</div>
+                        <div className="text-[10px] text-slate-500 font-bold">Mean</div>
+                        <div className="text-xs font-bold text-slate-300">{stats.mean != null ? formatValue(stats.mean) : '—'}</div>
                     </div>
                     <div>
-                        <div className="text-xs text-slate-500">Max</div>
-                        <div className="text-xs font-medium text-slate-300">{stats.max != null ? formatValue(stats.max) : '—'}</div>
+                        <div className="text-[10px] text-slate-500 font-bold">Max</div>
+                        <div className="text-xs font-bold text-slate-300">{stats.max != null ? formatValue(stats.max) : '—'}</div>
                     </div>
                 </div>
             )}
@@ -135,23 +135,23 @@ function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, st
 function AnomalySummaryCard({ count, modCount, extremeCount, label, color, icon, widthVar }) {
     return (
         <div className="acard-hover" style={{
-            flex: 1, background: 'rgba(6,13,28,.97)', border: '1px solid rgba(51,65,85,.4)',
-            borderRadius: '13px', padding: '15px 17px', position: 'relative', overflow: 'hidden'
+            flex: '1 1 140px', background: 'rgba(6,13,28,.97)', border: '1px solid rgba(51,65,85,.5)',
+            borderRadius: '13px', padding: '18px 20px', position: 'relative', overflow: 'hidden'
         }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
-            <div style={{ position: 'absolute', top: -28, right: -28, width: 80, height: 80, borderRadius: '50%', background: color, opacity: 0.06 }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                <span style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#e2f4ff', opacity: 0.45, fontWeight: 700 }}>{label}</span>
-                <div style={{ width: 27, height: 27, borderRadius: 7, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>{icon}</div>
+            <div style={{ position: 'absolute', top: -28, right: -28, width: 80, height: 80, borderRadius: '50%', background: color, opacity: 0.08 }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#e2f4ff', opacity: 0.6, fontWeight: 800 }}>{label}</span>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{icon}</div>
             </div>
-            <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color }}>{count}</div>
-            <div style={{ fontSize: 9, color: '#e2f4ff', opacity: 0.28, margin: '4px 0 11px 0' }}>anomalies detected</div>
-            <div style={{ height: 2, background: 'rgba(255,255,255,.05)', borderRadius: 99, marginBottom: 10 }}>
+            <div style={{ fontSize: 42, fontVariationSettings: '"wght" 900', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color }}>{count}</div>
+            <div style={{ fontSize: 10, color: '#e2f4ff', opacity: 0.4, margin: '6px 0 14px 0', fontWeight: 600 }}>anomalies detected</div>
+            <div style={{ height: 3, background: 'rgba(255,255,255,.08)', borderRadius: 99, marginBottom: 14 }}>
                 <div className="acard-fill" style={{ '--w': widthVar, height: '100%', background: `linear-gradient(90deg, transparent, ${color})` }} />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 4, padding: '2px 4px', fontSize: 8, color: '#ef4444', fontWeight: 700 }}>{extremeCount} extreme</div>
-                <div style={{ fontSize: 9, color: '#e2f4ff', opacity: 0.28 }}>{modCount} mod</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 6, padding: '3px 6px', fontSize: 9, color: '#ef4444', fontWeight: 800 }}>{extremeCount} extreme</div>
+                <div style={{ fontSize: 10, color: '#e2f4ff', opacity: 0.4, fontWeight: 700 }}>{modCount} mod</div>
             </div>
         </div>
     );
@@ -473,18 +473,19 @@ export default function App() {
                                         <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
                                             YEAR
                                         </div>
-                                        <div className="flex year-scroll" style={{ gap: 6, paddingBottom: 2 }}>
+                                        <div className="flex year-scroll" style={{ gap: 8, paddingBottom: 6 }}>
                                             {YEARS.map(y => (
                                                 <button key={y} onClick={() => { setSelectedYear(y); setSelectedMonth(0); setCompareYear(null); }}
                                                     style={{
                                                         flexShrink: 0,
-                                                        padding: '5px 13px',
-                                                        borderRadius: 8,
-                                                        fontSize: 11,
+                                                        padding: '8px 16px',
+                                                        borderRadius: '10px',
+                                                        fontSize: 13,
+                                                        minHeight: 44,
                                                         cursor: 'pointer',
                                                         transition: 'all 0.15s',
-                                                        ...(y === selectedYear ? { background: 'rgba(34,211,238,.12)', border: '1px solid rgba(34,211,238,.35)', color: '#22d3ee', fontWeight: 700 }
-                                                            : { background: 'rgba(8,18,38,.8)', border: '1px solid rgba(51,65,85,.55)', color: '#475569' })
+                                                        ...(y === selectedYear ? { background: 'rgba(34,211,238,.15)', border: '1px solid rgba(34,211,238,.4)', color: '#22d3ee', fontWeight: 800 }
+                                                            : { background: 'rgba(8,18,38,.85)', border: '1px solid rgba(51,65,85,.6)', color: '#64748b' })
                                                     }}
                                                     onMouseEnter={e => { if (y !== selectedYear) { e.currentTarget.style.borderColor = 'rgba(34,211,238,.18)'; e.currentTarget.style.color = '#94a3b8'; } }}
                                                     onMouseLeave={e => { if (y !== selectedYear) { e.currentTarget.style.borderColor = 'rgba(51,65,85,.55)'; e.currentTarget.style.color = '#475569'; } }}
@@ -551,17 +552,18 @@ export default function App() {
                                     <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
                                         MONTH
                                     </div>
-                                    <div className="flex flex-wrap" style={{ gap: 5 }}>
+                                    <div className="flex flex-wrap" style={{ gap: 6 }}>
                                         {MONTHS.map((m, i) => (
                                             <button key={m} onClick={() => setSelectedMonth(i)}
                                                 style={{
-                                                    padding: '4px 12px',
+                                                    padding: '8px 16px',
                                                     borderRadius: 99,
-                                                    fontSize: 10,
+                                                    fontSize: 12,
+                                                    minHeight: 44,
                                                     cursor: 'pointer',
                                                     transition: 'all 0.15s',
-                                                    ...(i === selectedMonth ? { background: 'rgba(0,212,255,.08)', border: '1px solid rgba(0,212,255,.28)', color: '#22d3ee', fontWeight: 700 }
-                                                        : { background: 'transparent', border: '1px solid rgba(51,65,85,.45)', color: '#475569' })
+                                                    ...(i === selectedMonth ? { background: 'rgba(0,212,255,.1)', border: '1px solid rgba(0,212,255,.35)', color: '#22d3ee', fontWeight: 800 }
+                                                        : { background: 'transparent', border: '1px solid rgba(51,65,85,.5)', color: '#64748b' })
                                                 }}>
                                                 {m}
                                             </button>
@@ -569,24 +571,24 @@ export default function App() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: 13, marginBottom: 4, flexWrap: window.innerWidth <= 768 ? 'wrap' : 'nowrap' }}>
+                                <div style={{ display: 'flex', gap: 13, marginBottom: 8, flexWrap: 'wrap' }}>
                                     <AnomalySummaryCard count={histStats.WTMP?.anomalyCount ?? 0}
                                         modCount={histStats.WTMP?.moderateCount ?? 0}
                                         extremeCount={histStats.WTMP?.extremeCount ?? 0}
-                                        label="Temp" color="#f97316" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#f97316' }}>T°</span>} widthVar="88%" />
+                                        label="Temp" color="#f97316" icon={<span style={{ fontSize: 13, fontWeight: 900, color: '#f97316' }}>T°</span>} widthVar="88%" />
                                     <AnomalySummaryCard count={histStats.WSPD?.anomalyCount ?? 0}
                                         modCount={histStats.WSPD?.moderateCount ?? 0}
                                         extremeCount={histStats.WSPD?.extremeCount ?? 0}
-                                        label="Wind" color="#22d3ee" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#22d3ee' }}>W</span>} widthVar="54%" />
+                                        label="Wind" color="#22d3ee" icon={<span style={{ fontSize: 13, fontWeight: 900, color: '#22d3ee' }}>W</span>} widthVar="54%" />
                                     <AnomalySummaryCard count={histStats.WVHT?.anomalyCount ?? 0}
                                         modCount={histStats.WVHT?.moderateCount ?? 0}
                                         extremeCount={histStats.WVHT?.extremeCount ?? 0}
-                                        label="Wave" color="#4ade80" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#4ade80' }}>~</span>} widthVar="24%" />
+                                        label="Wave" color="#4ade80" icon={<span style={{ fontSize: 13, fontWeight: 900, color: '#4ade80' }}>~</span>} widthVar="24%" />
                                     <AnomalySummaryCard
                                         count={(histStats.WTMP?.extremeCount ?? 0) + (histStats.WSPD?.extremeCount ?? 0) + (histStats.WVHT?.extremeCount ?? 0) + (histStats.PRES?.extremeCount ?? 0)}
                                         modCount={(histStats.WTMP?.moderateCount ?? 0) + (histStats.WSPD?.moderateCount ?? 0) + (histStats.WVHT?.moderateCount ?? 0) + (histStats.PRES?.moderateCount ?? 0)}
                                         extremeCount={(histStats.WTMP?.extremeCount ?? 0) + (histStats.WSPD?.extremeCount ?? 0) + (histStats.WVHT?.extremeCount ?? 0) + (histStats.PRES?.extremeCount ?? 0)}
-                                        label="Extreme" color="#ef4444" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#ef4444' }}>⚡</span>} widthVar="10%" />
+                                        label="Extreme" color="#ef4444" icon={<span style={{ fontSize: 13, fontWeight: 900, color: '#ef4444' }}>⚡</span>} widthVar="10%" />
                                 </div>
 
 

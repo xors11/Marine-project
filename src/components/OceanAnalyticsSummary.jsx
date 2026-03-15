@@ -37,13 +37,13 @@ function TrendBadge({ trend }) {
 
 function StatPill({ label, value, unit, color }) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            <span style={{ fontSize: '8px', fontWeight: 700, color: '#1e3a5f', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <span style={{ fontSize: '10px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {label}
             </span>
-            <span style={{ fontSize: '16px', fontWeight: 900, color }}>
+            <span style={{ fontSize: '18px', fontWeight: 900, color }}>
                 {value !== null && value !== undefined ? Number(value).toFixed(2) : '—'}
-                <span style={{ fontSize: '9px', fontWeight: 500, color, opacity: 0.4, marginLeft: 2 }}>{unit}</span>
+                <span style={{ fontSize: '11px', fontWeight: 600, color, opacity: 0.5, marginLeft: 2 }}>{unit}</span>
             </span>
         </div>
     );
@@ -58,9 +58,9 @@ const AnalyticsCard = memo(function AnalyticsCard({ param, stats }) {
     return (
         <div style={{
             background: 'rgba(6,13,28,.95)',
-            border: '1px solid rgba(51,65,85,.45)',
-            borderRadius: 12,
-            padding: '14px 16px',
+            border: '1px solid rgba(51,65,85,.5)',
+            borderRadius: 14,
+            padding: '18px 20px',
             position: 'relative',
             overflow: 'hidden'
         }}>
@@ -89,7 +89,7 @@ const AnalyticsCard = memo(function AnalyticsCard({ param, stats }) {
 
             {/* Stat pills */}
             <div style={{
-                display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 9
+                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 12
             }}>
                 <StatPill label="Mean" value={s.mean} unit={param.unit} color={param.color} />
                 <StatPill label="Min" value={s.min} unit={param.unit} color="#4db8e8" />
@@ -172,8 +172,8 @@ const OceanAnalyticsSummary = memo(function OceanAnalyticsSummary({ data, params
             {/* Grid of cards */}
             <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-                gap: '10px',
+                gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(3, 1fr)',
+                gap: '12px',
             }}>
                 {params.map((param) => (
                     <AnalyticsCard key={param.key} param={param} stats={stats} />

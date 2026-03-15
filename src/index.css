@@ -175,35 +175,67 @@ input[type='range'] {
 
 /* ── Mobile Responsiveness ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  :root {
+    --text-hero: clamp(1.5rem, 5vw, 2rem);
+    --text-value: clamp(1.75rem, 8vw, 3rem);
+    --text-base: 1rem;
+  }
 
   /* Layout adjustments */
   main {
-    padding: 1rem 1.25rem !important;
+    padding: 1.5rem 1rem !important;
   }
 
   /* Header scaling */
   h1 {
-    font-size: 1.25rem !important;
+    font-size: var(--text-hero) !important;
+    line-height: 1.2 !important;
   }
 
   /* Components scaling */
   .view-toggle {
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px;
+    border-radius: 12px;
   }
 
   .view-toggle button {
-    flex: 1;
+    flex: 1 1 calc(50% - 4px);
     text-align: center;
+    min-height: 44px;
+    font-size: 0.85rem;
   }
 
   .glass-card {
-    padding: 1.25rem !important;
+    padding: 1.5rem !important;
+    border-radius: 12px;
   }
 
   /* Grid adjustments for smaller screens */
   .grid {
     grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Typography improvements */
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .sidebar-label {
+    font-size: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Touch targets */
+  .ocean-select,
+  .param-pill,
+  button {
+    min-height: 44px;
   }
 
   /* Overlay sidebar state */

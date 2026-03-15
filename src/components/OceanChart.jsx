@@ -45,10 +45,11 @@ function CustomTooltip({ active, payload, label }) {
     return (
         <div style={{
             background: '#0a1628', border: '1px solid #22d3ee',
-            borderRadius: '8px', padding: '10px 14px',
-            fontSize: '0.78rem', backdropFilter: 'blur(12px)', minWidth: 200,
+            borderRadius: '12px', padding: '12px 16px',
+            fontSize: '0.85rem', backdropFilter: 'blur(12px)', minWidth: 220,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
         }}>
-            <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 6, fontSize: '0.68rem' }}>
+            <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>
                 {label}
             </div>
             {payload.filter(e => !e.dataKey?.endsWith('_fc')).map((entry) => {
@@ -219,22 +220,22 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
             {/* Legend */}
             <ChartLegend param={param} />
 
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 200 : 240}>
                 <ComposedChart data={mergedData} margin={CHART_MARGIN}>
                     <CartesianGrid {...GRID_STYLE} />
                     <XAxis
                         dataKey="label"
-                        tick={XAXIS_TICK}
+                        tick={{ ...XAXIS_TICK, fontSize: window.innerWidth < 768 ? 10 : 9 }}
                         axisLine={XAXIS_LINE}
                         tickLine={false}
                         interval="preserveStartEnd"
                     />
                     <YAxis
                         domain={Y_DOMAIN}
-                        tick={YAXIS_TICK}
+                        tick={{ ...YAXIS_TICK, fontSize: window.innerWidth < 768 ? 11 : 10 }}
                         axisLine={false}
                         tickLine={false}
-                        width={50}
+                        width={window.innerWidth < 768 ? 40 : 50}
                     />
                     <Tooltip content={<CustomTooltip />} />
 

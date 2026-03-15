@@ -26,13 +26,14 @@ function HistTooltip({ active, payload, label, unit }) {
         <div style={{
             background: '#0a1628',
             border: '1px solid #22d3ee',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            fontSize: '0.78rem',
+            borderRadius: '12px',
+            padding: '12px 16px',
+            fontSize: '0.85rem',
             backdropFilter: 'blur(12px)',
-            minWidth: 200,
+            minWidth: 220,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
         }}>
-            <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 6, fontSize: '0.68rem' }}>{label}</div>
+            <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>{label}</div>
             {payload.map((entry) => {
                 let name = entry.name;
                 if (entry.dataKey?.includes('_rama-23003')) name = 'RAMA 23003';
@@ -207,7 +208,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
             background: 'rgba(6,14,30,.75)',
             border: '1px solid rgba(51,65,85,.38)',
             borderRadius: '12px',
-            padding: '13px 15px'
+            padding: '16px 18px'
         }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -249,22 +250,22 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                 </div>
             )}
 
-            <ResponsiveContainer width="100%" height={240}>
+            <ResponsiveContainer width="100%" height={window.innerWidth < 768 ? 200 : 240}>
                 <ComposedChart data={chartData} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
                     <CartesianGrid {...GRID_STYLE} />
                     <XAxis
                         dataKey="label"
-                        tick={XAXIS_STYLE}
+                        tick={{ ...XAXIS_STYLE, fontSize: window.innerWidth < 768 ? 10 : 9 }}
                         axisLine={XAXIS_LINE}
                         tickLine={false}
                         interval="preserveStartEnd"
                     />
                     <YAxis
                         domain={['auto', 'auto']}
-                        tick={YAXIS_STYLE}
+                        tick={{ ...YAXIS_STYLE, fontSize: window.innerWidth < 768 ? 11 : 10 }}
                         axisLine={false}
                         tickLine={false}
-                        width={50}
+                        width={window.innerWidth < 768 ? 40 : 50}
                     />
                     <Tooltip content={<HistTooltip unit={param.unit} />} />
 
