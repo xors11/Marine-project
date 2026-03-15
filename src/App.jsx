@@ -11,6 +11,8 @@ import useMultiBuoyData from './hooks/useMultiBuoyData';
 import { useHistoricalBuoyData } from './hooks/useHistoricalBuoyData';
 import { LOCATIONS, PARAMETERS } from './data/constants';
 import { computeStats } from './utils/anomaly';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const YEARS = Array.from({ length: 2023 - 2012 + 1 }, (_, i) => 2023 - i);
 const MONTHS = ['All', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -130,12 +132,27 @@ function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, st
 }
 
 // ─── Historical Anomaly Summary Card ──────────────────────────────────────────
-function AnomalySummaryCard({ count, label, sub, borderColor, numColor }) {
+function AnomalySummaryCard({ count, modCount, extremeCount, label, color, icon, widthVar }) {
     return (
-        <div className="bg-slate-900 rounded-xl p-4 border border-slate-700" style={{ borderLeft: `4px solid ${borderColor}` }}>
-            <div className="text-2xl font-bold" style={{ color: numColor }}>{count}</div>
-            <div className="text-sm text-slate-300 font-medium">{label}</div>
-            <div className="text-xs text-slate-500 mt-0.5">{sub}</div>
+        <div className="acard-hover" style={{
+            flex: 1, background: 'rgba(6,13,28,.97)', border: '1px solid rgba(51,65,85,.4)',
+            borderRadius: '13px', padding: '15px 17px', position: 'relative', overflow: 'hidden'
+        }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
+            <div style={{ position: 'absolute', top: -28, right: -28, width: 80, height: 80, borderRadius: '50%', background: color, opacity: 0.06 }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <span style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#e2f4ff', opacity: 0.45, fontWeight: 700 }}>{label}</span>
+                <div style={{ width: 27, height: 27, borderRadius: 7, background: `${color}14`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>{icon}</div>
+            </div>
+            <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color }}>{count}</div>
+            <div style={{ fontSize: 9, color: '#e2f4ff', opacity: 0.28, margin: '4px 0 11px 0' }}>anomalies detected</div>
+            <div style={{ height: 2, background: 'rgba(255,255,255,.05)', borderRadius: 99, marginBottom: 10 }}>
+                <div className="acard-fill" style={{ '--w': widthVar, height: '100%', background: `linear-gradient(90deg, transparent, ${color})` }} />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 4, padding: '2px 4px', fontSize: 8, color: '#ef4444', fontWeight: 700 }}>{extremeCount} extreme</div>
+                <div style={{ fontSize: 9, color: '#e2f4ff', opacity: 0.28 }}>{modCount} mod</div>
+            </div>
         </div>
     );
 }
@@ -161,6 +178,14 @@ export default function App() {
     const [showCompareDropdown, setShowCompareDropdown] = useState(false);
     const [showMA, setShowMA] = useState(false);
     const toggleMA = useCallback(() => setShowMA(v => !v), []);
+    const [showExportDropdown, setShowExportDropdown] = useState(false);
+    const [exportToast, setExportToast] = useState(null);
+    useEffect(() => {
+        if (exportToast) {
+            const t = setTimeout(() => setExportToast(null), 2500);
+            return () => clearTimeout(t);
+        }
+    }, [exportToast]);
 
     // Time window state (Change 3)
     const [timeWindow, setTimeWindow] = useState('5D');
@@ -229,7 +254,63 @@ export default function App() {
     }, []);
     const handleLocationChange = useCallback(id => setLocationId(id), []);
 
+    const handleExportPDF = useCallback(async () => {
+        const element = document.getElementById('historical-content');
+        if (!element) return;
+
+        try {
+            const canvas = await html2canvas(element, {
+                backgroundColor: '#020d18',
+                scale: 1.5,
+                useCORS: true,
+                logging: false,
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+            });
+
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = pageWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Add title
+            pdf.setFontSize(16);
+            pdf.setTextColor(0, 212, 255);
+            pdf.text('Ocean Blue — Historical Data Report', 14, 15);
+            pdf.setFontSize(10);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text(`RAMA 23003 · Year: ${selectedYear} · Generated: ${new Date().toLocaleDateString()}`, 14, 22);
+
+            position = 28;
+
+            // Add screenshot — paginate if tall
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= (pageHeight - position);
+
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`ocean-blue-${selectedYear}-report.pdf`);
+        } catch (err) {
+            console.error('PDF export error:', err);
+            alert('PDF export failed. Please try again.');
+        }
+    }, [selectedYear]);
+
     const handleExportCSV = useCallback(() => {
+        setExportToast('CSV');
         if (!filteredHistorical.length) return;
         const keys = ['timestamp', ...HIST_PARAMS.map(p => p.key)];
         const csv = [keys.join(','), ...filteredHistorical.map(r => keys.map(k => k === 'timestamp' && r.timestamp instanceof Date ? r.timestamp.toISOString() : r[k] ?? '').join(','))].join('\n');
@@ -240,6 +321,7 @@ export default function App() {
     }, [filteredHistorical, selectedYear]);
 
     const handleExportJSON = useCallback(() => {
+        setExportToast('JSON');
         if (!filteredHistorical.length) return;
         const json = JSON.stringify(filteredHistorical.map(r => {
             const o = {}; if (r.timestamp instanceof Date) o.timestamp = r.timestamp.toISOString();
@@ -330,11 +412,11 @@ export default function App() {
                     <div className="flex items-start gap-3">
                         <button className="mobile-menu-btn" onClick={toggleSidebar}>☰</button>
                         <div>
-                            <h1 className="gradient-text" style={{ fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                            <h1 style={{ fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.2, backgroundImage: 'linear-gradient(to right, #22d3ee, #a855f7)', WebkitBackgroundClip: 'text', color: 'transparent' }}>
                                 Ocean Data Explorer
                             </h1>
                             {isHistorical ? (
-                                <div style={{ color: '#4db8e8', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                                <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                                     {location.label} &nbsp;·&nbsp; Historical Data — {selectedYear}
                                 </div>
                             ) : (
@@ -365,11 +447,15 @@ export default function App() {
                                 {!loading && data.length > 0 && <div style={{ background: 'rgba(36,144,204,0.08)', border: '1px solid rgba(36,144,204,0.15)', borderRadius: 99, padding: '0.25rem 0.7rem', fontSize: '0.7rem', color: '#4db8e8' }}>{data.length} observations</div>}
                             </>
                         )}
-                        {isHistorical && !histLoading && !histError && (
-                            <div style={{ background: 'rgba(36,144,204,0.08)', border: '1px solid rgba(36,144,204,0.15)', borderRadius: 99, padding: '0.25rem 0.7rem', fontSize: '0.7rem', color: '#4db8e8' }}>{filteredHistorical.length} records</div>
-                        )}
                     </div>
                 </div>
+
+                {/* Toast overlay */}
+                {exportToast && (
+                    <div style={{ position: 'fixed', top: 20, right: 20, background: '#0f172a', border: '1px solid #10b981', color: '#10b981', padding: '12px 20px', borderRadius: 8, zIndex: 9999, fontSize: 13, fontWeight: 600, boxShadow: '0 4px 12px rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        ✓ {exportToast} download started!
+                    </div>
+                )}
 
                 {/* ── Content ─────────────────────────────────────────────────── */}
                 {viewMode === 'historical' ? (
@@ -381,67 +467,138 @@ export default function App() {
                                 <div style={{ color: '#4db8e8', fontSize: '0.8rem', maxWidth: 360 }}>{histError}. Make sure the backend server is running on port 5000.</div>
                             </div>
                         ) : (
-                            <div className="flex flex-col gap-4">
-                                {/* Year pills + Compare + Export */}
-                                <div className="flex items-start justify-between flex-wrap gap-3">
-                                    <div className="flex flex-wrap gap-2">
-                                        {YEARS.map(y => (
-                                            <button key={y} onClick={() => { setSelectedYear(y); setSelectedMonth(0); setCompareYear(null); }}
-                                                className={y === selectedYear ? 'bg-cyan-400 text-slate-900 font-bold border-cyan-400' : 'bg-slate-900 text-cyan-400 border-slate-700 hover:border-cyan-400/50'}
-                                                style={{ border: '1px solid', borderRadius: '0.5rem', padding: '0.375rem 0.75rem', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s' }}>{y}</button>
+                            <div className="flex flex-col gap-4" id="historical-content">
+                                <div className="flex items-start justify-between mb-4 flex-wrap gap-4">
+                                    <div style={{ flex: 1, minWidth: 260, overflow: 'hidden' }}>
+                                        <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
+                                            YEAR
+                                        </div>
+                                        <div className="flex year-scroll" style={{ gap: 6, paddingBottom: 2 }}>
+                                            {YEARS.map(y => (
+                                                <button key={y} onClick={() => { setSelectedYear(y); setSelectedMonth(0); setCompareYear(null); }}
+                                                    style={{
+                                                        flexShrink: 0,
+                                                        padding: '5px 13px',
+                                                        borderRadius: 8,
+                                                        fontSize: 11,
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.15s',
+                                                        ...(y === selectedYear ? { background: 'rgba(34,211,238,.12)', border: '1px solid rgba(34,211,238,.35)', color: '#22d3ee', fontWeight: 700 }
+                                                            : { background: 'rgba(8,18,38,.8)', border: '1px solid rgba(51,65,85,.55)', color: '#475569' })
+                                                    }}
+                                                    onMouseEnter={e => { if (y !== selectedYear) { e.currentTarget.style.borderColor = 'rgba(34,211,238,.18)'; e.currentTarget.style.color = '#94a3b8'; } }}
+                                                    onMouseLeave={e => { if (y !== selectedYear) { e.currentTarget.style.borderColor = 'rgba(51,65,85,.55)'; e.currentTarget.style.color = '#475569'; } }}
+                                                >
+                                                    {y}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-3 mt-2">
+                                        <div style={{ position: 'relative' }}>
+                                            <button onClick={() => setShowExportDropdown(!showExportDropdown)}
+                                                style={{ padding: '3px 8px', fontSize: 8, borderRadius: 99, background: 'transparent', border: '1px solid #22d3ee', color: '#22d3ee', fontWeight: 700, cursor: 'pointer' }}>
+                                                ↓ Export ▼
+                                            </button>
+                                            {showExportDropdown && (
+                                                <>
+                                                    <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setShowExportDropdown(false)} />
+                                                    <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 20, background: '#0f172a', border: '1px solid #334155', borderRadius: 8, padding: 6, display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4, minWidth: 220 }}>
+                                                        <button onClick={() => { handleExportPDF(); setShowExportDropdown(false); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%' }}>
+                                                            <span style={{ background: '#ef4444', color: '#fff', fontSize: 8, padding: '2px 4px', borderRadius: 3, fontWeight: 700 }}>📄 PDF</span>
+                                                            <div style={{ flex: 1, color: '#e2f4ff', fontSize: 10 }}>Export as PDF <span style={{ opacity: 0.5, fontSize: 8 }}>— Charts + summary</span></div>
+                                                        </button>
+                                                        <button onClick={() => { handleExportCSV(); setShowExportDropdown(false); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%' }}>
+                                                            <span style={{ background: '#10b981', color: '#fff', fontSize: 8, padding: '2px 4px', borderRadius: 3, fontWeight: 700 }}>📊 CSV</span>
+                                                            <div style={{ flex: 1, color: '#e2f4ff', fontSize: 10 }}>Export as CSV <span style={{ opacity: 0.5, fontSize: 8 }}>— Raw data · {filteredHistorical.length} records</span></div>
+                                                        </button>
+                                                        <button onClick={() => { handleExportJSON(); setShowExportDropdown(false); }} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 8px', background: 'transparent', border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%' }}>
+                                                            <span style={{ background: '#f59e0b', color: '#fff', fontSize: 8, padding: '2px 4px', borderRadius: 3, fontWeight: 700 }}>🗂️ JSON</span>
+                                                            <div style={{ flex: 1, color: '#e2f4ff', fontSize: 10 }}>Export as JSON <span style={{ opacity: 0.5, fontSize: 8 }}>— Structured data format</span></div>
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                        <div style={{ width: 1, height: 14, background: 'rgba(51,65,85, 0.6)' }} />
+
+                                        <div style={{ position: 'relative' }}>
+                                            <button onClick={() => compareYear ? (setCompareYear(null), setShowCompareDropdown(false)) : setShowCompareDropdown(!showCompareDropdown)}
+                                                style={{ padding: '3px 8px', fontSize: 8, borderRadius: 99, background: compareYear ? 'rgba(239,68,68,0.1)' : 'transparent', border: compareYear ? '1px solid rgba(239,68,68,0.3)' : '1px solid #a855f7', color: compareYear ? '#ef4444' : '#a855f7', fontWeight: 700, cursor: 'pointer' }}>
+                                                {compareYear ? `✕ Clear (${compareYear})` : `📈 Compare`}
+                                            </button>
+                                            {showCompareDropdown && !compareYear && (
+                                                <>
+                                                    <div style={{ position: 'fixed', inset: 0, zIndex: 10 }} onClick={() => setShowCompareDropdown(false)} />
+                                                    <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 20, background: '#0f172a', border: '1px solid #334155', borderRadius: 8, padding: 8, display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4, width: 220 }}>
+                                                        {YEARS.filter(y => y !== selectedYear).map(y => (
+                                                            <button key={y} onClick={() => { setCompareYear(y); setShowCompareDropdown(false); }}
+                                                                style={{ background: '#1e293b', border: '1px solid #475569', borderRadius: 6, padding: '4px 8px', fontSize: 10, color: '#94a3b8', cursor: 'pointer' }}>{y}</button>
+                                                        ))}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        <div style={{ fontSize: 8, color: '#64748b', background: 'rgba(51,65,85,.2)', padding: '2px 6px', borderRadius: 4 }}>
+                                            {filteredHistorical.length} records
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ marginBottom: 4 }}>
+                                    <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
+                                        MONTH
+                                    </div>
+                                    <div className="flex flex-wrap" style={{ gap: 5 }}>
+                                        {MONTHS.map((m, i) => (
+                                            <button key={m} onClick={() => setSelectedMonth(i)}
+                                                style={{
+                                                    padding: '4px 12px',
+                                                    borderRadius: 99,
+                                                    fontSize: 10,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.15s',
+                                                    ...(i === selectedMonth ? { background: 'rgba(0,212,255,.08)', border: '1px solid rgba(0,212,255,.28)', color: '#22d3ee', fontWeight: 700 }
+                                                        : { background: 'transparent', border: '1px solid rgba(51,65,85,.45)', color: '#475569' })
+                                                }}>
+                                                {m}
+                                            </button>
                                         ))}
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div style={{ position: 'relative' }}>
-                                            {compareYear ? (
-                                                <button onClick={() => { setCompareYear(null); setShowCompareDropdown(false); }}
-                                                    style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.5rem', padding: '0.375rem 0.75rem', fontSize: '0.75rem', color: '#ef4444', cursor: 'pointer' }}>
-                                                    ✕ Clear compare ({compareYear})</button>
-                                            ) : (
-                                                <button onClick={() => setShowCompareDropdown(!showCompareDropdown)}
-                                                    style={{ background: 'rgba(30,41,59,1)', border: '1px solid rgba(34,211,238,0.3)', borderRadius: '0.5rem', padding: '0.375rem 0.75rem', fontSize: '0.75rem', color: '#22d3ee', cursor: 'pointer' }}>
-                                                    📈 Compare year</button>
-                                            )}
-                                            {showCompareDropdown && !compareYear && (
-                                                <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 20, background: '#0f172a', border: '1px solid #334155', borderRadius: '0.5rem', padding: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4, minWidth: 200 }}>
-                                                    {YEARS.filter(y => y !== selectedYear).map(y => (
-                                                        <button key={y} onClick={() => { setCompareYear(y); setShowCompareDropdown(false); }}
-                                                            style={{ background: '#1e293b', border: '1px solid #475569', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem', color: '#94a3b8', cursor: 'pointer' }}>{y}</button>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <button onClick={handleExportCSV} className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:border-slate-500" style={{ cursor: 'pointer' }}>↓ CSV</button>
-                                        <button onClick={handleExportJSON} className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-400 hover:text-white hover:border-slate-500" style={{ cursor: 'pointer' }}>↓ JSON</button>
+                                </div>
+
+                                <div style={{ display: 'flex', gap: 13, marginBottom: 4, flexWrap: window.innerWidth <= 768 ? 'wrap' : 'nowrap' }}>
+                                    <AnomalySummaryCard count={histStats.WTMP?.anomalyCount ?? 0}
+                                        modCount={histStats.WTMP?.moderateCount ?? 0}
+                                        extremeCount={histStats.WTMP?.extremeCount ?? 0}
+                                        label="Temp" color="#f97316" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#f97316' }}>T°</span>} widthVar="88%" />
+                                    <AnomalySummaryCard count={histStats.WSPD?.anomalyCount ?? 0}
+                                        modCount={histStats.WSPD?.moderateCount ?? 0}
+                                        extremeCount={histStats.WSPD?.extremeCount ?? 0}
+                                        label="Wind" color="#22d3ee" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#22d3ee' }}>W</span>} widthVar="54%" />
+                                    <AnomalySummaryCard count={histStats.WVHT?.anomalyCount ?? 0}
+                                        modCount={histStats.WVHT?.moderateCount ?? 0}
+                                        extremeCount={histStats.WVHT?.extremeCount ?? 0}
+                                        label="Wave" color="#4ade80" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#4ade80' }}>~</span>} widthVar="24%" />
+                                    <AnomalySummaryCard
+                                        count={(histStats.WTMP?.extremeCount ?? 0) + (histStats.WSPD?.extremeCount ?? 0) + (histStats.WVHT?.extremeCount ?? 0) + (histStats.PRES?.extremeCount ?? 0)}
+                                        modCount={(histStats.WTMP?.moderateCount ?? 0) + (histStats.WSPD?.moderateCount ?? 0) + (histStats.WVHT?.moderateCount ?? 0) + (histStats.PRES?.moderateCount ?? 0)}
+                                        extremeCount={(histStats.WTMP?.extremeCount ?? 0) + (histStats.WSPD?.extremeCount ?? 0) + (histStats.WVHT?.extremeCount ?? 0) + (histStats.PRES?.extremeCount ?? 0)}
+                                        label="Extreme" color="#ef4444" icon={<span style={{ fontSize: 11, fontWeight: 900, color: '#ef4444' }}>⚡</span>} widthVar="10%" />
+                                </div>
+
+
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <div style={{ width: 2, height: 11, background: 'rgba(0,212,255,.35)', borderRadius: 2 }}></div>
+                                        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.14em', color: '#155e75', textTransform: 'uppercase' }}>
+                                            Parameter Charts
+                                        </span>
                                     </div>
+                                    <MAToggle enabled={showMA} onToggle={toggleMA} />
                                 </div>
-                                {/* Month filter pills */}
-                                <div className="flex flex-wrap gap-2">
-                                    {MONTHS.map((m, i) => (
-                                        <button key={m} onClick={() => setSelectedMonth(i)}
-                                            style={{ border: '1px solid', borderRadius: '9999px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s', background: i === selectedMonth ? 'rgba(8,145,178,0.15)' : '#0f172a', color: i === selectedMonth ? '#22d3ee' : '#64748b', borderColor: i === selectedMonth ? 'rgba(8,145,178,0.4)' : '#334155' }}>{m}</button>
-                                    ))}
-                                </div>
-                                {/* Anomaly Summary Cards */}
-                                <div className="grid grid-cols-4 gap-3">
-                                    <AnomalySummaryCard count={histStats.WTMP?.anomalyCount ?? 0} label="Temp anomalies" sub={`${histStats.WTMP?.extremeCount ?? 0} extreme events`} borderColor="#f97316" numColor="#f97316" />
-                                    <AnomalySummaryCard count={histStats.WSPD?.anomalyCount ?? 0} label="Wind anomalies" sub={`${histStats.WSPD?.extremeCount ?? 0} extreme events`} borderColor="#22d3ee" numColor="#22d3ee" />
-                                    <AnomalySummaryCard count={histStats.WVHT?.anomalyCount ?? 0} label="Wave anomalies" sub={`${histStats.WVHT?.extremeCount ?? 0} extreme events`} borderColor="#4ade80" numColor="#4ade80" />
-                                    <AnomalySummaryCard count={(histStats.WTMP?.extremeCount ?? 0) + (histStats.WSPD?.extremeCount ?? 0) + (histStats.WVHT?.extremeCount ?? 0) + (histStats.PRES?.extremeCount ?? 0)} label="Total extreme" sub="Across all parameters" borderColor="#ef4444" numColor="#ef4444" />
-                                </div>
-                                {/* AI Insight Bar */}
-                                {aiInsight && (
-                                    <div className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 flex items-start gap-3">
-                                        <span style={{ fontSize: '1.1rem', marginTop: 2 }}>⚡</span>
-                                        <div className="text-sm text-slate-300 leading-relaxed">
-                                            <span style={{ color: '#f97316', fontWeight: 600 }}>{aiInsight.maxTempDate}</span>: Water temp reached{' '}
-                                            <span style={{ color: '#f97316', fontWeight: 600 }}>{aiInsight.maxTemp}°C</span> — highest in {selectedYear}.
-                                            Wind peaked at <span style={{ color: '#22d3ee', fontWeight: 600 }}>{aiInsight.maxWind} m/s</span> on{' '}
-                                            <span style={{ color: '#22d3ee', fontWeight: 600 }}>{aiInsight.maxWindDate}</span>.
-                                        </div>
-                                    </div>
-                                )}
-                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}><MAToggle enabled={showMA} onToggle={toggleMA} /></div>
                                 <HistoricalChart data={filteredHistorical} showMovingAverage={showMA} compareData={compareData} compareYear={compareYear} locationId={locationId} />
                                 <OceanAnalyticsSummary data={filteredHistorical} params={HIST_ANALYTICS_PARAMS} />
                             </div>

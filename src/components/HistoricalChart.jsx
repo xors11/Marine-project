@@ -5,7 +5,6 @@ import {
 } from 'recharts';
 import { computeStats, computeMovingAverage, isAnomaly, zScore, classifyAnomaly } from '../utils/anomaly';
 
-// ─── Historical chart configuration — distinct colors per parameter ──────────
 const HIST_PARAMS = [
     { key: 'WTMP', label: 'Water Temperature', unit: '°C', color: '#f97316', areaFill: '#f9731610' },
     { key: 'WSPD', label: 'Wind Speed', unit: 'm/s', color: '#22d3ee', areaFill: '#22d3ee08' },
@@ -15,14 +14,12 @@ const HIST_PARAMS = [
 
 export { HIST_PARAMS };
 
-// Stable axis / grid style objects — defined once, not recreated per render
 const GRID_STYLE = { strokeDasharray: '3 3', stroke: 'rgba(36,144,204,0.1)', vertical: false };
 const XAXIS_STYLE = { fill: '#4db8e8', fontSize: 9 };
 const XAXIS_LINE = { stroke: 'rgba(36,144,204,0.2)' };
 const YAXIS_STYLE = { fill: '#4db8e8', fontSize: 10 };
 const ACTIVE_DOT = { r: 5, stroke: '#fff', strokeWidth: 1 };
 
-// ─── Enhanced Tooltip ────────────────────────────────────────────────────────
 function HistTooltip({ active, payload, label, unit }) {
     if (!active || !payload?.length) return null;
     return (
@@ -84,23 +81,26 @@ function HistTooltip({ active, payload, label, unit }) {
     );
 }
 
-// ─── Anomaly Dot (red circle at anomaly points) ──────────────────────────────
 function AnomalyDot(props) {
     const { cx, cy, payload, dataKey, fieldMean, fieldStd } = props;
     if (!payload || payload[dataKey] == null) return null;
     if (!isAnomaly(payload[dataKey], fieldMean, fieldStd)) return null;
     const z = zScore(payload[dataKey], fieldMean, fieldStd);
     const cls = classifyAnomaly(z);
+
+    // Adjusted sizes
+    const outerR = cls === 'extreme' ? 3 : 2.5;
+    const innerR = cls === 'extreme' ? 1.5 : 1.2;
     const color = cls === 'extreme' ? '#f87171' : '#fb923c';
+
     return (
         <g>
-            <circle cx={cx} cy={cy} r={6} fill="none" stroke={color} strokeWidth={2} opacity={0.8} />
-            <circle cx={cx} cy={cy} r={3} fill={color} opacity={0.9} />
+            <circle cx={cx} cy={cy} r={outerR} fill="none" stroke={color} strokeWidth={1} opacity={0.8} />
+            <circle cx={cx} cy={cy} r={innerR} fill={color} opacity={0.9} />
         </g>
     );
 }
 
-// ─── Anomaly badge ────────────────────────────────────────────────────────────
 function AnomalyBadge({ s }) {
     if (!s || s.anomalyCount === 0) return null;
     return (
@@ -132,7 +132,6 @@ function AnomalyBadge({ s }) {
     );
 }
 
-// ─── Single parameter chart — memoized ────────────────────────────────────────
 const HistParamChart = memo(function HistParamChart({ param, chartData, stats, showMovingAverage, compareData, compareYear, locationId = 'rama-23003' }) {
     const s = stats[param.key];
     const ALL_BUOYS = ['rama-23003', 'north-indian', 'bay-of-bengal'];
@@ -152,7 +151,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
     const maKey = `${primaryKey}_ma`;
     const compareKey = `compare_${param.key}`;
 
-    // Find extreme anomaly x-positions for vertical reference lines
     const extremeXPositions = useMemo(() => {
         if (!s) return [];
         return chartData
@@ -163,10 +161,9 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                 return classifyAnomaly(z) === 'extreme';
             })
             .map(row => row.label)
-            .slice(0, 10); // limit to 10 for readability
+            .slice(0, 10);
     }, [chartData, primaryKey, s]);
 
-    // Cross-buoy anomaly detection (ReferenceArea generation)
     const crossAnomalyRegions = useMemo(() => {
         if (!s || !s.mean || !s.std) return [];
         const regions = [];
@@ -187,7 +184,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                 const c2 = classifyAnomaly(z2);
                 const c3 = classifyAnomaly(z3);
 
-                // Assuming "anomaly" means anything not 'normal'
                 const isAllAnomaly = (c1 !== 'normal') && (c2 !== 'normal') && (c3 !== 'normal');
 
                 if (isAllAnomaly && !inAnomaly) {
@@ -200,7 +196,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
             }
         });
 
-        // Close trailing region
         if (inAnomaly && chartData.length > 0) {
             regions.push({ start: startX, end: chartData[chartData.length - 1].label });
         }
@@ -208,12 +203,17 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
     }, [chartData, param.key, s]);
 
     return (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-5">
+        <div style={{
+            background: 'rgba(6,14,30,.75)',
+            border: '1px solid rgba(51,65,85,.38)',
+            borderRadius: '12px',
+            padding: '13px 15px'
+        }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <span style={{
-                        width: 8, height: 8, borderRadius: '50%',
+                        width: 7, height: 7, borderRadius: '50%', // Replaced 8px to 7px
                         background: param.color, display: 'inline-block', flexShrink: 0,
                     }} />
                     <div style={{ width: 3, height: 18, borderRadius: 2, background: param.color }} />
@@ -268,7 +268,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                     />
                     <Tooltip content={<HistTooltip unit={param.unit} />} />
 
-                    {/* Extreme anomaly reference lines */}
                     {extremeXPositions.map((x, i) => (
                         <ReferenceLine
                             key={`ref-${i}`}
@@ -280,7 +279,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         />
                     ))}
 
-                    {/* Cross-Buoy Anomaly Bands */}
                     {crossAnomalyRegions.map((r, i) => (
                         <ReferenceArea
                             key={`cross-${i}`}
@@ -291,8 +289,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         />
                     ))}
 
-                    {/* Secondary buoys lines */}
-                    {OTHER_BUOYS.filter(bId => bId !== locationId).map(bId => (
+                    {OTHER_BUOYS.map(bId => (
                         <Line
                             key={bId}
                             type="monotone"
@@ -305,7 +302,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         />
                     ))}
 
-                    {/* Area fill for primary */}
                     <Area
                         type="monotone"
                         dataKey={primaryKey}
@@ -314,7 +310,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         isAnimationActive={false}
                     />
 
-                    {/* Main data line */}
                     <Line
                         type="monotone"
                         dataKey={primaryKey}
@@ -335,7 +330,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         isAnimationActive={false}
                     />
 
-                    {/* Compare year overlay */}
                     {compareYear && (
                         <Line
                             type="monotone"
@@ -352,7 +346,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         />
                     )}
 
-                    {/* 24-period moving average overlay */}
                     {showMovingAverage && (
                         <Line
                             type="monotone"
@@ -374,7 +367,6 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
     );
 });
 
-// ─── Main export ─────────────────────────────────────────────────────────────
 const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage = false, compareData, compareYear, locationId = 'rama-23003' }) {
     const chartData = useMemo(() => {
         const rows = data.map((row, idx) => {
@@ -388,7 +380,6 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
                 })(),
             };
 
-            // Inject compare data if available (aligned by index)
             if (compareData && compareData[idx]) {
                 HIST_PARAMS.forEach(p => {
                     formatted[`compare_${p.key}`] = compareData[idx][p.key];
@@ -398,7 +389,6 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
             return formatted;
         });
 
-        // Inject MA columns when toggled on
         if (showMovingAverage) {
             HIST_PARAMS.forEach((p) => {
                 const primaryKey = `${p.key}_${locationId}`;
@@ -410,7 +400,6 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
         return rows;
     }, [data, showMovingAverage, compareData, compareYear, locationId]);
 
-    // Compute stats for anomaly badges — memoized
     const stats = useMemo(
         () => Object.fromEntries(HIST_PARAMS.map((p) => [p.key, computeStats(data, p.key)])),
         [data]
@@ -425,7 +414,7 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
             {HIST_PARAMS.map((param) => (
                 <HistParamChart
                     key={param.key}

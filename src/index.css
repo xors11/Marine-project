@@ -175,6 +175,7 @@ input[type='range'] {
 
 /* ── Mobile Responsiveness ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+
   /* Layout adjustments */
   main {
     padding: 1rem 1.25rem !important;
@@ -242,4 +243,37 @@ input[type='range'] {
   .mobile-menu-btn {
     display: flex;
   }
+}
+
+@keyframes fillBar {
+  from {
+    width: 0
+  }
+
+  to {
+    width: var(--w)
+  }
+}
+
+.year-scroll::-webkit-scrollbar {
+  display: none
+}
+
+.year-scroll {
+  scrollbar-width: none;
+  overflow-x: auto;
+}
+
+.acard-fill {
+  height: 100%;
+  border-radius: 99px;
+  animation: fillBar 0.9s ease forwards;
+}
+
+.acard-hover {
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.acard-hover:hover {
+  transform: translateY(-2px);
 }
