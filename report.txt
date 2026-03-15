@@ -1,0 +1,48 @@
+Total Rows: 100
+Unique Species Count: 41
+Unique Species:
+Yellowfin Tuna
+Skipjack Tuna
+Bigeye Tuna
+Sailfish
+Bluefin Tuna
+Swordfish
+Oceanic Shark
+Indian Mackerel
+Sardine
+Anchovy
+Grouper
+Barracuda
+Sea Bass
+Trevally
+Ray
+Bonito
+Snapper
+Crab
+Lobster
+Shrimp
+Hilsa Shad
+Ribbonfish
+Catfish
+Emperor Fish
+Parrotfish
+Coral Trout
+Mullet
+Kingfish
+Shark
+Albacore Tuna
+Squid
+Tuna (Skipjack)
+Tuna (Yellowfin)
+Tuna (Bigeye)
+Yellowtail
+Mahi Mahi
+Flounder
+Halibut
+Pollock
+Herring
+Tuna (Albacore)
+Unique Regions:
+North Indian Ocean
+Bay of Bengal
+Indian Ocean
