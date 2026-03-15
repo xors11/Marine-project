@@ -52,6 +52,8 @@ export async function fetchHistoricalBuoyData() {
 
     const json = await res.json();
 
+    if (json && Array.isArray(json.data)) return json.data;
     if (Array.isArray(json)) return json;
+
     throw new Error('Unexpected response from /api/buoy-historical');
 }

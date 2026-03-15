@@ -1,6 +1,9 @@
 # Backend dependencies
 node_modules/
 
+# Old sub-project (merged into root)
+ocean-blue/
+
 # Frontend dependencies
 dist/
 dist-ssr/

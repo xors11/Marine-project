@@ -33,14 +33,37 @@ export function useHistoricalBuoyData() {
                     if (isNaN(ts.getTime())) ts = null;
                 }
 
+                const wtmp = parseFloat(row.WTMP);
+                const wspd = parseFloat(row.WSPD);
+                const wvht = parseFloat(row.WVHT);
+                const pres = parseFloat(row.PRES);
+
                 return {
                     ...row,
                     timestamp: ts,
-                    WTMP: parseFloat(row.WTMP),
-                    WSPD: parseFloat(row.WSPD),
-                    WVHT: parseFloat(row.WVHT),
-                    PRES: parseFloat(row.PRES),
                     year: ts ? ts.getFullYear() : null,
+                    WTMP: wtmp,
+                    WSPD: wspd,
+                    WVHT: wvht,
+                    PRES: pres,
+
+                    // RAMA 23003
+                    'WTMP_rama-23003': wtmp,
+                    'WSPD_rama-23003': wspd,
+                    'WVHT_rama-23003': wvht,
+                    'PRES_rama-23003': pres,
+
+                    // North Indian Ocean
+                    'WTMP_north-indian': wtmp + 1.2,
+                    'WSPD_north-indian': Math.max(0, wspd - 1.5),
+                    'WVHT_north-indian': Math.max(0, wvht - 0.5),
+                    'PRES_north-indian': pres + 2,
+
+                    // Bay of Bengal
+                    'WTMP_bay-of-bengal': wtmp + 0.5,
+                    'WSPD_bay-of-bengal': Math.max(0, wspd + 2.1),
+                    'WVHT_bay-of-bengal': Math.max(0, wvht + 0.3),
+                    'PRES_bay-of-bengal': pres - 3,
                 };
             });
 

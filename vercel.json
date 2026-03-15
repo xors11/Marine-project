@@ -6,7 +6,7 @@
             "use": "@vercel/node"
         },
         {
-            "src": "ocean-blue/package.json",
+            "src": "package.json",
             "use": "@vercel/static-build",
             "config": {
                 "distDir": "dist"
@@ -20,7 +20,7 @@
         },
         {
             "source": "/(.*)",
-            "destination": "/ocean-blue/index.html"
+            "destination": "/index.html"
         }
     ]
 }
