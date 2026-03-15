@@ -1,22 +1,9 @@
-const fs = require('fs');
-const path = require('path');
-
-const __dirname = path.resolve();
-
-function loadCycloneData() {
-    try {
-        const summaryPath = path.join(__dirname, "data", "cyclone_summary_NI.json");
-        if (fs.existsSync(summaryPath)) {
-            return JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
-        }
-    } catch (err) {
-        console.error("Error loading Cyclone JSON files:", err);
-    }
-    return null;
-}
-
+const fs = require("fs");
+const path = require("path");
 module.exports = function handler(req, res) {
-    const cycloneSummaryCache = loadCycloneData();
-    if (!cycloneSummaryCache) return res.status(500).json({ error: "Cyclone summary not loaded" });
-    res.json(cycloneSummaryCache);
+    try {
+        const p = path.join(process.cwd(), "data", "cyclone_summary_NI.json");
+        if (!fs.existsSync(p)) return res.status(500).json({ error: "File not found" });
+        res.json(JSON.parse(fs.readFileSync(p, "utf-8")));
+    } catch (err) { res.status(500).json({ error: err.message }); }
 };

@@ -2,7 +2,6 @@
     "name": "ocean-blue-unified",
     "private": true,
     "version": "1.0.0",
-    "type": "module",
     "description": "Ocean Blue – Real-time & historical ocean data explorer",
     "scripts": {
         "start": "node server.js",
