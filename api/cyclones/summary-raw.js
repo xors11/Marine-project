@@ -2,17 +2,21 @@ const fs = require('fs');
 const path = require('path');
 
 const __dirname = path.resolve();
-const dataPath = path.join(__dirname, 'data');
 
 function loadCycloneData() {
     try {
-        const p = path.join(dataPath, 'cyclone_summary_NI.json');
-        return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf-8')) : null;
-    } catch { return null; }
+        const summaryPath = path.join(__dirname, "data", "cyclone_summary_NI.json");
+        if (fs.existsSync(summaryPath)) {
+            return JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
+        }
+    } catch (err) {
+        console.error("Error loading Cyclone JSON files:", err);
+    }
+    return null;
 }
 
 module.exports = function handler(req, res) {
-    const cache = loadCycloneData();
-    if (!cache) return res.status(500).json({ error: 'Cyclone summary not loaded' });
-    res.json(cache);
-}
+    const cycloneSummaryCache = loadCycloneData();
+    if (!cycloneSummaryCache) return res.status(500).json({ error: "Cyclone summary not loaded" });
+    res.json(cycloneSummaryCache);
+};

@@ -1,71 +1,60 @@
-import axios from 'axios';
+const axios = require('axios');
 
-export default async function handler(req, res) {
-    const { lat, lon } = req.query;
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lon);
+module.exports = async function handler(req, res) {
+    const lat = parseFloat(req.query.lat);
+    const lon = parseFloat(req.query.lon);
 
-    if (isNaN(latitude) || isNaN(longitude)) {
+    if (isNaN(lat) || isNaN(lon)) {
         return res.status(400).json({ error: "lat and lon query params are required" });
     }
 
     try {
-        const url = "https://marine-api.open-meteo.com/v1/marine";
-        const params = {
-            latitude,
-            longitude,
-            hourly: [
-                "wave_height",
-                "wind_wave_height",
-                "swell_wave_height",
-                "sea_surface_temperature",
-            ].join(","),
-            current: [
-                "wave_height",
-                "wave_direction",
-                "wave_period",
-            ].join(","),
-            past_days: 2,
-            forecast_days: 3,
-            timezone: "auto",
-        };
-
-        // Fetch marine data
-        const marineRes = await axios.get(url, { params, timeout: 10000 });
-        const marine = marineRes.data;
-
-        // Fetch atmospheric + SST
+        const marineUrl = "https://marine-api.open-meteo.com/v1/marine";
         const weatherUrl = "https://api.open-meteo.com/v1/forecast";
-        const weatherParams = {
-            latitude,
-            longitude,
-            hourly: [
-                "temperature_2m",
-                "wind_speed_10m",
-                "surface_pressure",
-                "sea_surface_temperature",
-            ].join(","),
-            past_days: 2,
-            forecast_days: 3,
-            timezone: "auto",
-        };
-        const weatherRes = await axios.get(weatherUrl, { params: weatherParams, timeout: 10000 });
+
+        const marineRes = await axios.get(marineUrl, {
+            params: {
+                latitude: lat,
+                longitude: lon,
+                hourly: "wave_height,sea_surface_temperature",
+                past_days: 2,
+                forecast_days: 3,
+                timezone: "auto",
+            },
+            timeout: 10000,
+            headers: { "User-Agent": "Mozilla/5.0" }
+        });
+
+        const weatherRes = await axios.get(weatherUrl, {
+            params: {
+                latitude: lat,
+                longitude: lon,
+                hourly: "wind_speed_10m,surface_pressure",
+                past_days: 2,
+                forecast_days: 3,
+                timezone: "auto",
+            },
+            timeout: 10000,
+            headers: { "User-Agent": "Mozilla/5.0" }
+        });
+
+        const marine = marineRes.data;
         const weather = weatherRes.data;
 
-        // Merge sequences
         const times = weather.hourly?.time ?? [];
+
         const rows = times.map((t, i) => ({
             timestamp: t,
-            // Use sea_surface_temperature from marine API if available, else from forecast API
-            sea_surface_temp: marine.hourly?.sea_surface_temperature?.[i] ?? weather.hourly?.sea_surface_temperature?.[i] ?? null,
-            wind_speed: weather.hourly.wind_speed_10m?.[i] ?? null,
-            air_pressure: weather.hourly.surface_pressure?.[i] ?? null,
+            sea_surface_temp: marine.hourly?.sea_surface_temperature?.[i] ?? null,
+            wind_speed: weather.hourly?.wind_speed_10m?.[i] ?? null,
+            air_pressure: weather.hourly?.surface_pressure?.[i] ?? null,
             wave_height: marine.hourly?.wave_height?.[i] ?? null,
         }));
 
-        res.status(200).json({ lat: latitude, lon: longitude, data: rows });
+        res.json({ lat, lon, data: rows });
+
     } catch (err) {
-        console.error("Open-Meteo error:", err.message);
-        res.status(502).json({ error: "Failed to fetch live data: " + err.message });
+        console.error("Live API error:", err.message);
+        res.status(502).json({ error: "Failed to fetch live data" });
     }
-}
+};

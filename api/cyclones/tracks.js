@@ -2,17 +2,21 @@ const fs = require('fs');
 const path = require('path');
 
 const __dirname = path.resolve();
-const dataPath = path.join(__dirname, 'data');
 
 function loadTracksData() {
     try {
-        const p = path.join(dataPath, 'cyclone_tracks_NI.json');
-        return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf-8')) : null;
-    } catch { return null; }
+        const tracksPath = path.join(__dirname, "data", "cyclone_tracks_NI.json");
+        if (fs.existsSync(tracksPath)) {
+            return JSON.parse(fs.readFileSync(tracksPath, "utf-8"));
+        }
+    } catch (err) {
+        console.error("Error loading Cyclone tracks JSON files:", err);
+    }
+    return null;
 }
 
 module.exports = function handler(req, res) {
-    const cache = loadTracksData();
-    if (!cache) return res.status(500).json({ error: 'Cyclone tracks not loaded' });
-    res.json(cache);
-}
+    const cycloneTracksCache = loadTracksData();
+    if (!cycloneTracksCache) return res.status(500).json({ error: "Cyclone tracks not loaded" });
+    res.json(cycloneTracksCache);
+};
