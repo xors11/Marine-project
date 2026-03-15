@@ -1,9 +1,13 @@
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
 import csv from 'csv-parser';
 
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+
 export default async function handler(req, res) {
-    const filePath = path.join(process.cwd(), 'data', 'fisheries_indian_region_2023.csv');
+    const filePath = path.join(__dirname, '..', 'data', 'fisheries_indian_region_2023.csv');
     const regionFilter = req.query.region ? req.query.region.toLowerCase() : null;
 
     if (!fs.existsSync(filePath)) {
