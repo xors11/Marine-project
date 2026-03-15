@@ -28,21 +28,23 @@ export default function CycloneTrendGraph({ tracksData }) {
     }, [tracksData]);
 
     return (
-        <div className="glass-panel" style={{ padding: '1.5rem', height: 350 }}>
+        <div className="glass-panel" style={{ padding: '1.5rem', height: 350, display: 'flex', flexDirection: 'column' }}>
             <h3 style={{ color: '#4db8e8', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600 }}>Climate Trend: Avg Max Wind (km/h)</h3>
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                    <XAxis dataKey="year" stroke="#4db8e8" fontSize={12} minTickGap={20} />
-                    <YAxis stroke="#4db8e8" fontSize={12} domain={['auto', 'auto']} />
-                    <Tooltip
-                        contentStyle={{ backgroundColor: '#071e2b', borderColor: '#4db8e8', borderRadius: '8px' }}
-                        itemStyle={{ color: '#fff' }}
-                        labelStyle={{ color: '#4db8e8', fontWeight: 'bold' }}
-                    />
-                    <Line type="monotone" dataKey="avgWind" name="Avg Max Wind" stroke="#ff4d6d" strokeWidth={3} dot={{ r: 4, fill: '#0a192f', stroke: '#ff4d6d', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#ff4d6d' }} />
-                </LineChart>
-            </ResponsiveContainer>
+            <div style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                        <XAxis dataKey="year" stroke="#4db8e8" fontSize={12} minTickGap={20} />
+                        <YAxis stroke="#4db8e8" fontSize={12} domain={['auto', 'auto']} />
+                        <Tooltip
+                            contentStyle={{ backgroundColor: '#071e2b', borderColor: '#4db8e8', borderRadius: '8px' }}
+                            itemStyle={{ color: '#fff' }}
+                            labelStyle={{ color: '#4db8e8', fontWeight: 'bold' }}
+                        />
+                        <Line type="monotone" dataKey="avgWind" name="Avg Max Wind" stroke="#ff4d6d" strokeWidth={3} dot={{ r: 4, fill: '#0a192f', stroke: '#ff4d6d', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#ff4d6d' }} />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 }

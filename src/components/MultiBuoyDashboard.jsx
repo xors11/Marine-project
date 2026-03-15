@@ -124,7 +124,7 @@ function MiniChart({ title, data, dataKey, color, domain }) {
     return (
         <div>
             <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">{title}</div>
-            <div className="h-20 w-full bg-slate-800/30 rounded p-1 border border-slate-700/50">
+            <div className="h-20 w-full bg-slate-800/30 rounded p-1 border border-slate-700/50" style={{ minWidth: 0, minHeight: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={data}>
                         <XAxis dataKey="label" hide />

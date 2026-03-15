@@ -8,7 +8,7 @@ export default function MSYUtilizationChart({ species }) {
         <div className="glass-card p-6 h-[400px] flex flex-col">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-6">Top MSY Utilization by Species</h3>
 
-            <div className="flex-1 w-full">
+            <div className="flex-1 w-full" style={{ minHeight: 0, minWidth: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />

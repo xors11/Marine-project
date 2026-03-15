@@ -45,39 +45,23 @@ export default function FisheriesIntelligence() {
   useEffect(() => {
     const fetchCSV = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/fisheries');
+        const response = await fetch('/api/fisheries');
         if (!response.ok) {
           throw new Error('API route not found');
         }
         const jsonData = await response.json();
 
-        if (jsonData && jsonData.species) {
+        if (jsonData && jsonData.data) {
+          setRawSpecies(jsonData.data);
+        } else if (jsonData && jsonData.species) {
           setRawSpecies(jsonData.species);
         } else {
           throw new Error('Malformed API structure');
         }
         setLoading(false);
       } catch (err) {
-        // Try alternate local path
-        try {
-          Papa.parse('/data/fisheries_indian_region_2023.csv', {
-            download: true,
-            header: true,
-            dynamicTyping: true,
-            skipEmptyLines: true,
-            complete: (results) => {
-              setRawSpecies(results.data);
-              setLoading(false);
-            },
-            error: (e) => {
-              setError('Failed to load CSV: ' + e.message);
-              setLoading(false);
-            }
-          });
-        } catch (e) {
-          setError('Failed to fetch data');
-          setLoading(false);
-        }
+        setError('Failed to fetch data');
+        setLoading(false);
       }
     };
     fetchCSV();

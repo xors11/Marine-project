@@ -1,8 +1,9 @@
-import axios from 'axios';
-import fs from 'fs';
-import path from 'path';
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
-const dataPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'data');
+const __dirname = path.resolve();
+const dataPath = path.join(__dirname, 'data');
 
 function loadSummary() {
     try {
@@ -11,7 +12,7 @@ function loadSummary() {
     } catch { return null; }
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const lat = parseFloat(req.query.lat) || 15;
     const lon = parseFloat(req.query.lon) || 85;
     const cycloneSummaryCache = loadSummary();

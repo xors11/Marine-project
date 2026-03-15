@@ -1,7 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
-const dataPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'data');
+const __dirname = path.resolve();
+const dataPath = path.join(__dirname, 'data');
 
 function loadCycloneData() {
     try {
@@ -10,7 +11,7 @@ function loadCycloneData() {
     } catch { return null; }
 }
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
     const cache = loadCycloneData();
     if (!cache) return res.status(500).json({ error: 'Cyclone data not loaded' });
 
