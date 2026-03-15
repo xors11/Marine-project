@@ -2,14 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 
-const __dirname = path.resolve();
-
 module.exports = function handler(req, res) {
-    const filePath = path.join(__dirname, "data", "fisheries_indian_region_2023.csv");
+    const filePath = path.join(process.cwd(), "data", "fisheries_indian_region_2023.csv");
     const regionQuery = req.query.region?.toLowerCase();
 
     if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: "Fisheries CSV not found" });
+        return res.status(404).json({ error: "Fisheries CSV not found", path: filePath });
     }
 
     const results = [];
@@ -68,45 +66,33 @@ module.exports = function handler(req, res) {
 
             res.json({
                 region: regionQuery || "All Regions",
-
                 sustainability_index: sustainabilityIndex,
                 sustainability_level:
                     sustainabilityIndex >= 70 ? "Sustainable"
                         : sustainabilityIndex >= 50 ? "Caution"
                             : "Critical",
-
                 collapse_risk: {
                     score: Math.round(avgMSY),
                     level: avgMSY > 80 ? "High" : "Moderate"
                 },
-
-                climate_stress: {
-                    sst: 28.5,
-                    score: 40
-                },
-
+                climate_stress: { sst: 28.5, score: 40 },
                 future_projection: {
                     index_6_month: sustainabilityIndex - 2,
                     change: -2
                 },
-
                 model_confidence: 85,
-
                 risk_attribution: {
                     stock_health: Math.round(100 - avgStock),
                     msy_pressure: Math.round(avgMSY),
                     declining_trend: 20,
                     climate_stress: 10
                 },
-
                 critical_species_count:
                     results.filter(r => r.stock_health_percent < 40).length,
-
                 overfishedCount:
                     results.filter(r =>
                         (r.current_catch_tonnes / r.msy_tonnes) > 1
                     ).length,
-
                 species: results,
                 smartAlerts: [],
                 simulation: { enabled: false }
@@ -114,6 +100,6 @@ module.exports = function handler(req, res) {
         })
         .on("error", (err) => {
             console.error("Fisheries CSV error:", err.message);
-            res.status(500).json({ error: "Failed to read fisheries CSV" });
+            res.status(500).json({ error: "Failed to read fisheries CSV", details: err.message });
         });
 };
