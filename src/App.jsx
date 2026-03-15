@@ -96,11 +96,26 @@ function Sparkline({ values, color }) {
 }
 
 // ─── Enhanced Summary Card (Change 2) ─────────────────────────────────────────
-function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, stats, sparklineValues, formatValue }) {
+function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, stats, sparklineValues, formatValue, dataAge }) {
     const formattedValue = value != null ? formatValue(value) : '—';
     return (
         <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 md:p-4" style={{ borderLeft: `4px solid ${borderColor}`, position: 'relative', overflow: 'hidden' }}>
             <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider mb-1 font-bold">{label}</div>
+            {dataAge?.label === 'fresh' && (
+                <div style={{
+                    position: 'absolute', top: 8, right: 8,
+                    display: 'flex', alignItems: 'center', gap: 3,
+                    background: 'rgba(74,222,128,0.1)',
+                    border: '1px solid rgba(74,222,128,0.2)',
+                    borderRadius: 99, padding: '1px 6px',
+                }}>
+                    <span className="animate-pulse" style={{
+                        width: 4, height: 4, borderRadius: '50%',
+                        background: '#4ade80', display: 'inline-block'
+                    }} />
+                    <span style={{ fontSize: 8, color: '#4ade80', fontWeight: 700 }}>LIVE</span>
+                </div>
+            )}
             <div className="text-4xl md:text-3xl font-black md:font-bold leading-tight" style={{ color }}>
                 {formattedValue}
                 <span className="text-sm md:text-base font-medium ml-1" style={{ opacity: 0.8 }}>{unit}</span>
@@ -196,7 +211,7 @@ export default function App() {
     const location = LOCATIONS.find(l => l.id === locationId) || LOCATIONS[0];
     const isHistorical = viewMode === 'historical';
 
-    const { buoyData, loading, lastUpdated, BUOYS, getRegionalSummary, refetch, pauseRefresh, resumeRefresh } = useMultiBuoyData();
+    const { buoyData, loading, lastUpdated, countdown, BUOYS, getRegionalSummary, refetch, pauseRefresh, resumeRefresh } = useMultiBuoyData();
 
     const data = buoyData[locationId]?.history || [];
     const error = null;
@@ -338,6 +353,14 @@ export default function App() {
         [lastUpdated]
     );
 
+    const dataAge = useMemo(() => {
+        if (!lastUpdated) return null;
+        const ms = Date.now() - lastUpdated.getTime();
+        if (ms < 5 * 60 * 1000) return { color: '#4ade80', label: 'fresh' };
+        if (ms < 10 * 60 * 1000) return { color: '#f59e0b', label: 'aging' };
+        return { color: '#ef4444', label: 'stale' };
+    }, [lastUpdated]);
+
     // ── Live values + deltas ──────────────────────────────────────────────────
     const liveLast = data.length > 0 ? data[data.length - 1] : {};
     const liveSST = liveLast?.sea_surface_temp;
@@ -443,7 +466,23 @@ export default function App() {
                         {!isHistorical && viewMode === 'live' && (
                             <>
                                 {error && <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(255,77,109,0.1)', border: '1px solid rgba(255,77,109,0.3)', borderRadius: 99, padding: '0.25rem 0.7rem', fontSize: '0.7rem', color: '#ff4d6d' }}>⚠ {error}</div>}
-                                {lastUpdatedStr && <div style={{ background: 'rgba(36,144,204,0.1)', border: '1px solid rgba(36,144,204,0.2)', borderRadius: 99, padding: '0.25rem 0.7rem', fontSize: '0.7rem', color: '#4db8e8' }}>↻ Updated {lastUpdatedStr}</div>}
+                                {lastUpdatedStr && (
+                                    <div style={{
+                                        background: 'rgba(36,144,204,0.08)',
+                                        border: '1px solid rgba(36,144,204,0.15)',
+                                        borderRadius: 99, padding: '0.25rem 0.7rem',
+                                        fontSize: '0.7rem', color: '#4db8e8',
+                                        display: 'flex', alignItems: 'center', gap: 5
+                                    }}>
+                                        <span style={{
+                                            width: 6, height: 6, borderRadius: '50%',
+                                            background: dataAge?.color ?? '#4ade80',
+                                            display: 'inline-block'
+                                        }} className="animate-pulse" />
+                                        Live · {lastUpdatedStr}
+                                        <span style={{ color: '#1e3a5f', marginLeft: 2 }}>· {countdown}s</span>
+                                    </div>
+                                )}
                                 {!loading && data.length > 0 && <div style={{ background: 'rgba(36,144,204,0.08)', border: '1px solid rgba(36,144,204,0.15)', borderRadius: 99, padding: '0.25rem 0.7rem', fontSize: '0.7rem', color: '#4db8e8' }}>{data.length} observations</div>}
                             </>
                         )}
@@ -642,7 +681,7 @@ export default function App() {
                                     />
                                 ) : (
                                     <>
-                                        {/* Status Bar logic removed, replacing with global strip context inline here if needed */}
+                                        {/* Status bar */}
                                         <div className="bg-green-950 border border-green-900 rounded-lg px-4 py-2 flex items-center justify-between mb-4 mt-2">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" style={{ display: 'inline-block' }} />
@@ -651,31 +690,54 @@ export default function App() {
                                             <div style={{ color: '#6ee7b7', fontSize: '0.75rem' }}>{data.length} observations cached</div>
                                         </div>
 
+                                        {/* Stale data warning banner */}
+                                        {dataAge?.label === 'stale' && (
+                                            <div style={{
+                                                background: 'rgba(127,29,29,0.2)',
+                                                border: '1px solid rgba(239,68,68,0.2)',
+                                                borderRadius: 8, padding: '6px 14px',
+                                                display: 'flex', alignItems: 'center',
+                                                justifyContent: 'space-between', fontSize: 10
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <span style={{ color: '#ef4444', fontWeight: 700 }}>⚠ Live data may be stale</span>
+                                                    <span style={{ color: '#334155' }}>Last updated {lastUpdatedStr}</span>
+                                                </div>
+                                                <button onClick={refetch} style={{
+                                                    background: 'rgba(239,68,68,0.1)',
+                                                    border: '1px solid rgba(239,68,68,0.25)',
+                                                    borderRadius: 6, padding: '2px 10px',
+                                                    color: '#f87171', fontSize: 9,
+                                                    fontWeight: 700, cursor: 'pointer'
+                                                }}>Refresh now</button>
+                                            </div>
+                                        )}
+
                                         {/* ═══ Enhanced Summary Cards (Change 2) ═══ */}
                                         <div className="grid grid-cols-4 gap-3">
                                             <EnhancedSummaryCard
                                                 label="Sea Surface Temp" value={liveSST} unit="°C"
                                                 color="#f97316" borderColor="#f97316" delta={sstDelta}
                                                 stats={stats?.sea_surface_temp} sparklineValues={sparklines.sea_surface_temp}
-                                                formatValue={FMT.sea_surface_temp}
+                                                formatValue={FMT.sea_surface_temp} dataAge={dataAge}
                                             />
                                             <EnhancedSummaryCard
                                                 label="Wind Speed" value={liveWind} unit="m/s"
                                                 color="#22d3ee" borderColor="#22d3ee" delta={windDelta}
                                                 stats={stats?.wind_speed} sparklineValues={sparklines.wind_speed}
-                                                formatValue={FMT.wind_speed}
+                                                formatValue={FMT.wind_speed} dataAge={dataAge}
                                             />
                                             <EnhancedSummaryCard
                                                 label="Air Pressure" value={livePressure} unit="hPa"
                                                 color="#a78bfa" borderColor="#a78bfa" delta={pressureDelta}
                                                 stats={stats?.air_pressure} sparklineValues={sparklines.air_pressure}
-                                                formatValue={FMT.air_pressure}
+                                                formatValue={FMT.air_pressure} dataAge={dataAge}
                                             />
                                             <EnhancedSummaryCard
                                                 label="Wave Height" value={liveWaveHeight} unit="m"
                                                 color="#4ade80" borderColor="#4ade80" delta={waveDelta}
                                                 stats={stats?.wave_height} sparklineValues={sparklines.wave_height}
-                                                formatValue={FMT.wave_height}
+                                                formatValue={FMT.wave_height} dataAge={dataAge}
                                             />
                                         </div>
 
@@ -708,6 +770,24 @@ export default function App() {
 
                                         {/* ═══ Charts (all changes applied via OceanChart) ═══ */}
                                         <OceanChart data={data} activeParams={activeParams} showMovingAverage={showMA} timeWindow={timeWindow} />
+
+                                        {/* Data source footer */}
+                                        <div style={{
+                                            fontSize: 9, color: '#1e3a5f',
+                                            padding: '6px 2px',
+                                            display: 'flex', alignItems: 'center',
+                                            gap: 8, borderTop: '1px solid rgba(51,65,85,0.2)',
+                                            marginTop: 4
+                                        }}>
+                                            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
+                                            Data: Open-Meteo Marine API
+                                            <span style={{ color: '#0f2744' }}>·</span>
+                                            Indian Ocean Buoy Network
+                                            <span style={{ color: '#0f2744' }}>·</span>
+                                            Real-time · 1h resolution
+                                            <span style={{ color: '#0f2744' }}>·</span>
+                                            {data.length} observations loaded
+                                        </div>
                                     </>
                                 )}
                             </div>

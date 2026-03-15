@@ -9,6 +9,8 @@ module.exports = async function handler(req, res) {
     }
 
     try {
+        console.log(`[LIVE ${new Date().toISOString()}] Fetching buoy lat:${lat} lon:${lon}`);
+
         const marineUrl = "https://marine-api.open-meteo.com/v1/marine";
         const weatherUrl = "https://api.open-meteo.com/v1/forecast";
 
@@ -53,8 +55,14 @@ module.exports = async function handler(req, res) {
 
         res.json({ lat, lon, data: rows });
 
+        console.log(`[LIVE] Got ${rows.length} pts · latest: ${rows[rows.length - 1]?.timestamp} · SST: ${rows[rows.length - 1]?.sea_surface_temp}°C`);
+
     } catch (err) {
-        console.error("Live API error:", err.message);
-        res.status(502).json({ error: "Failed to fetch live data" });
+        console.error(`[${new Date().toISOString()}] Live API error:`, err.message);
+        res.status(502).json({
+            error: "Live data temporarily unavailable",
+            timestamp: new Date().toISOString(),
+            retry_after: 30
+        });
     }
 };

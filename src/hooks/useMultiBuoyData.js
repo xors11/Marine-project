@@ -34,8 +34,11 @@ export default function useMultiBuoyData() {
     const [buoyData, setBuoyData] = useState({});
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState(null);
+    const [countdown, setCountdown] = useState(300);
     const timerRef = useRef(null);
     const pausedRef = useRef(false);
+    const countdownRef = useRef(300);
+    const lastUpdatedRef = useRef(null);
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -65,7 +68,12 @@ export default function useMultiBuoyData() {
             });
 
             setBuoyData(newData);
-            setLastUpdated(new Date());
+            const now = new Date();
+            setLastUpdated(now);
+            lastUpdatedRef.current = now;
+            countdownRef.current = 300;
+            setCountdown(300);
+            console.log(`[LIVE ${now.toLocaleTimeString()}] Data refreshed · SST: ${Object.values(newData)[0]?.sst?.toFixed(1)}°C · Wind: ${Object.values(newData)[0]?.wind?.toFixed(1)}m/s`);
         } catch (err) {
             console.error('Multi-buoy fetch failed', err);
         } finally {
@@ -80,10 +88,32 @@ export default function useMultiBuoyData() {
     useEffect(() => {
         fetchData();
         timerRef.current = setInterval(tick, REFRESH_INTERVAL_MS);
+
+        const handleVisibility = () => {
+            if (!document.hidden && lastUpdatedRef.current) {
+                const elapsed = Date.now() - lastUpdatedRef.current.getTime();
+                if (elapsed > 5 * 60 * 1000) {
+                    console.log('[LIVE] Tab refocused, data stale — refreshing...');
+                    fetchData();
+                }
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
+            document.removeEventListener('visibilitychange', handleVisibility);
         };
     }, [fetchData, tick]);
+
+    // 1-second countdown ticker
+    useEffect(() => {
+        const cd = setInterval(() => {
+            countdownRef.current = Math.max(0, countdownRef.current - 1);
+            setCountdown(countdownRef.current);
+        }, 1000);
+        return () => clearInterval(cd);
+    }, []);
 
     const pauseRefresh = useCallback(() => {
         pausedRef.current = true;
@@ -130,6 +160,7 @@ export default function useMultiBuoyData() {
         buoyData,
         loading,
         lastUpdated,
+        countdown,
         BUOYS,
         getBuoyById,
         getRegionalSummary,
