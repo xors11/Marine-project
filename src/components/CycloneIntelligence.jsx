@@ -10,7 +10,7 @@ import HistoricalAnalogPanel from './cyclone/HistoricalAnalogPanel';
 import FisheriesImpactPanel from './cyclone/FisheriesImpactPanel';
 import useCycloneTimeline from '../hooks/useCycloneTimeline';
 import { computeRisk } from '../services/cycloneRiskEngine';
-import useMultiBuoyData from '../hooks/useMultiBuoyData';
+
 
 const BUOY_COLORS = {
     'rama-23003': '#22d3ee', // cyan
@@ -18,9 +18,8 @@ const BUOY_COLORS = {
     'bay-of-bengal': '#a78bfa' // violet
 };
 
-export default function CycloneIntelligence() {
+export default function CycloneIntelligence({ buoyData, buoys }) {
     const { data, loading, error, toggleSimulation, refetch } = useCycloneData();
-    const { buoyData, BUOYS } = useMultiBuoyData();
     const [show2D, setShow2D] = useState(false);
     const { isPlaying, currentYear, speed, play, pause, reset, setSpeed, setCurrentYear } = useCycloneTimeline();
 
@@ -57,7 +56,7 @@ export default function CycloneIntelligence() {
     const lr = liveRisk || {};
 
     // Phase 3: Multi-Buoy Integration
-    const buoyRisks = BUOYS.map(b => {
+    const buoyRisks = buoys.map(b => {
         const hist = buoyData[b.id]?.history || [];
         const last = hist.length > 0 ? hist[hist.length - 1] : {};
         const sst = last.sea_surface_temp || 27;

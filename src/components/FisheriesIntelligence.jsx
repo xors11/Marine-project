@@ -10,13 +10,10 @@ import LoadingSpinner from './LoadingSpinner';
 import RecommendedActions from './fisheries/RecommendedActions';
 import TopBar from './fisheries/TopBar';
 import KPIStrip from './fisheries/KPIStrip';
-import useMultiBuoyData from '../hooks/useMultiBuoyData';
 
-export default function FisheriesIntelligence() {
+
+export default function FisheriesIntelligence({ currentData, getRegionalSummary }) {
   const fisheriesRef = useRef(null);
-
-  // MULTI-BUOY UPGRADE (Phase 4)
-  const { getRegionalSummary } = useMultiBuoyData();
 
   // Base State
   const [rawSpecies, setRawSpecies] = useState([]);

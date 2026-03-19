@@ -645,9 +645,9 @@ export default function App() {
                             </div>
                         )
                 ) : viewMode === 'fisheries' ? (
-                    <FisheriesIntelligence currentData={data[data.length - 1] || {}} />
+                    <FisheriesIntelligence currentData={data[data.length - 1] || {}} getRegionalSummary={getRegionalSummary} />
                 ) : viewMode === 'cyclones' ? (
-                    <CycloneIntelligence />
+                    <CycloneIntelligence buoyData={buoyData} buoys={BUOYS} />
                 ) : (
                     /* ── LIVE VIEW ──────────────────────────────────────────────── */
                     loading ? <LoadingSpinner message="Fetching live ocean data…" /> :
