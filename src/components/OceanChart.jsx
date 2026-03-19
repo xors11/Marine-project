@@ -52,10 +52,10 @@ function CustomTooltip({ active, payload, label }) {
             <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>
                 {label}
             </div>
-            {payload.filter(e => !e.dataKey?.endsWith('_fc')).map((entry) => {
+            {payload.filter(e => !e.dataKey?.endsWith('_fc')).map((entry, idx) => {
                 const isMA = entry.dataKey?.endsWith('_ma');
                 return (
-                    <div key={entry.dataKey} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: entry.color, marginBottom: 3 }}>
+                    <div key={`${entry.dataKey}_${idx}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: entry.color, marginBottom: 3 }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             {entry.name}
                             {isMA && (

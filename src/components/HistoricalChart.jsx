@@ -34,7 +34,7 @@ function HistTooltip({ active, payload, label, unit }) {
             boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
         }}>
             <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>{label}</div>
-            {payload.map((entry) => {
+            {payload.map((entry, idx) => {
                 let name = entry.name;
                 if (entry.dataKey?.includes('_rama-23003')) name = 'RAMA 23003';
                 else if (entry.dataKey?.includes('_north-indian')) name = 'N. Indian Ocean';
@@ -45,7 +45,7 @@ function HistTooltip({ active, payload, label, unit }) {
 
                 return (
                     <div
-                        key={entry.dataKey}
+                        key={`${entry.dataKey}_${idx}`}
                         style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: entry.color, marginBottom: 3 }}
                     >
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
