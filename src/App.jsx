@@ -54,7 +54,7 @@ function GlobalBuoyStrip({ buoyData, buoys, activeId, onSelect, lastUpdated }) {
     const dotColor = elapsedMs > 15 * 60 * 1000 ? '#ef4444' : elapsedMs > 5 * 60 * 1000 ? '#f59e0b' : '#4ade80';
 
     return (
-        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+        <div className="flex overflow-x-auto gap-3 pb-1" style={{ fontSize: '0.75rem', marginTop: '0.4rem' }}>
             {buoys.map(b => {
                 const bData = buoyData[b.id] || {};
                 const sst = bData.sst != null ? `${bData.sst.toFixed(1)}°C` : '—°C';
@@ -66,7 +66,8 @@ function GlobalBuoyStrip({ buoyData, buoys, activeId, onSelect, lastUpdated }) {
                     <div
                         key={b.id}
                         onClick={() => onSelect(b.id)}
-                        className={`flex items-center gap-2 cursor-pointer transition-colors ${isActive ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-cyan-400'}`}
+                        className={`flex-shrink-0 flex items-center gap-2 cursor-pointer transition-colors ${isActive ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-cyan-400'}`}
+                        style={{ minWidth: 'fit-content' }}
                     >
                         <span style={{ color: dotColor, fontSize: '10px' }}>●</span>
                         <span>{b.name}</span>
@@ -235,6 +236,9 @@ export default function App() {
 
     const data = buoyData[locationId]?.history || [];
     const error = null;
+
+    const activeBuoy = BUOYS.find(b => b.id === locationId) || BUOYS[0];
+    const setActiveBuoy = (buoy) => handleLocationChange(buoy.id);
 
     useEffect(() => {
         if (isHistorical) pauseRefresh?.(); else resumeRefresh?.();
@@ -689,6 +693,66 @@ export default function App() {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">
+                                {/* Mobile Buoy Selector (Step 2) */}
+                                <div className="md:hidden mt-2 mb-1">
+                                    <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold">
+                                        Buoy Location
+                                    </div>
+                                    <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap">
+                                        {BUOYS.map(buoy => (
+                                            <button
+                                                key={buoy.id}
+                                                onClick={() => setActiveBuoy(buoy)}
+                                                className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${activeBuoy?.id === buoy.id
+                                                        ? 'bg-cyan-950 border-cyan-700 text-cyan-300'
+                                                        : 'bg-slate-900 border-slate-700 text-slate-400'
+                                                    }`}
+                                            >
+                                                <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeBuoy?.id === buoy.id ? 'bg-cyan-400' : 'bg-slate-600'
+                                                    }`} />
+                                                <div className="text-left">
+                                                    <div>{buoy.name}</div>
+                                                    <div className="text-[9px] font-normal opacity-70">{buoy.label}</div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Mobile 3-Buoy Snapshot (Step 7) */}
+                                <div className="md:hidden mb-3 grid grid-cols-3 gap-2">
+                                    {BUOYS.map(buoy => {
+                                        const bData = buoyData[buoy.id] || {};
+                                        const isActive = activeBuoy?.id === buoy.id;
+                                        return (
+                                            <button
+                                                key={buoy.id}
+                                                onClick={() => setActiveBuoy(buoy)}
+                                                className={`rounded-xl p-2.5 border text-left transition-all ${isActive
+                                                        ? 'bg-cyan-950 border-cyan-700'
+                                                        : 'bg-slate-900 border-slate-800'
+                                                    }`}
+                                            >
+                                                <div className="text-[9px] font-bold text-slate-300 truncate mb-1">
+                                                    {buoy.name.split(' ').slice(-2).join(' ')}
+                                                </div>
+                                                <div className={`text-sm font-bold ${isActive ? 'text-cyan-400' : 'text-slate-400'
+                                                    }`}>
+                                                    {bData?.sst != null ? `${bData.sst.toFixed(1)}°` : '—'}
+                                                </div>
+                                                <div className="text-[9px] text-slate-500">
+                                                    {bData?.wind != null ? `${bData.wind.toFixed(1)}m/s` : 'offline'}
+                                                </div>
+                                                {isActive && (
+                                                    <div className="text-[8px] text-cyan-500 mt-1">
+                                                        viewing ●
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+
                                 {/* Compare Toggle (Phase 2 Change 1) */}
                                 <div className="flex justify-end mb-2">
                                     <button
@@ -798,7 +862,7 @@ export default function App() {
                                         </div>
 
                                         {/* ═══ Charts (all changes applied via OceanChart) ═══ */}
-                                        <OceanChart data={data} activeParams={activeParams} showMovingAverage={showMA} timeWindow={timeWindow} />
+                                        <OceanChart data={data} activeParams={activeParams} showMovingAverage={showMA} timeWindow={timeWindow} activeBuoy={activeBuoy} />
 
                                         {/* Data source footer */}
                                         <div style={{

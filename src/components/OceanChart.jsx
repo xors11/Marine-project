@@ -150,7 +150,7 @@ function ChartLegend({ param }) {
 }
 
 // ─── Per-parameter sub-chart ──────────────────────────────────────────────────
-const ParamChart = memo(function ParamChart({ param, chartData, forecastData, stats, showMovingAverage }) {
+const ParamChart = memo(function ParamChart({ param, chartData, forecastData, stats, showMovingAverage, activeBuoy }) {
     const s = stats[param.key];
 
     const activeDot = useMemo(
@@ -204,6 +204,9 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                     <div style={{ width: 3, height: 18, borderRadius: 2, background: param.color }} />
                     <span style={{ fontWeight: 700, fontSize: '0.9rem', color: param.color }}>
                         {param.label}
+                    </span>
+                    <span className="md:hidden text-[9px] text-slate-500 ml-1">
+                        · {activeBuoy?.name || 'RAMA 23003'}
                     </span>
                     <span style={{ fontSize: '0.7rem', color: '#4db8e8', opacity: 0.7 }}>({param.unit})</span>
                 </div>
@@ -350,7 +353,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
 });
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
-const OceanChart = memo(function OceanChart({ data, activeParams, showMovingAverage = false, timeWindow = '5D' }) {
+const OceanChart = memo(function OceanChart({ data, activeParams, showMovingAverage = false, timeWindow = '5D', activeBuoy }) {
     // Build chart data from full data
     const chartData = useMemo(() => {
         const rows = data.map((row) => ({
@@ -437,6 +440,7 @@ const OceanChart = memo(function OceanChart({ data, activeParams, showMovingAver
                     forecastData={forecastMap[param.key]}
                     stats={stats}
                     showMovingAverage={showMovingAverage}
+                    activeBuoy={activeBuoy}
                 />
             ))}
         </div>
