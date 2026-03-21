@@ -153,10 +153,11 @@ function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, st
 
 // ─── Historical Anomaly Summary Card ──────────────────────────────────────────
 function AnomalySummaryCard({ count, modCount, extremeCount, label, color, icon, widthVar }) {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     return (
         <div className="acard-hover" style={{
             flex: '1 1 140px', background: 'rgba(6,13,28,.97)', border: '1px solid rgba(51,65,85,.5)',
-            borderRadius: '13px', padding: '18px 20px', position: 'relative', overflow: 'hidden'
+            borderRadius: '13px', padding: isMobile ? '12px' : '18px 20px', position: 'relative', overflow: 'hidden'
         }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${color}, transparent)` }} />
             <div style={{ position: 'absolute', top: -28, right: -28, width: 80, height: 80, borderRadius: '50%', background: color, opacity: 0.08 }} />
@@ -164,7 +165,7 @@ function AnomalySummaryCard({ count, modCount, extremeCount, label, color, icon,
                 <span style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#e2f4ff', opacity: 0.6, fontWeight: 800 }}>{label}</span>
                 <div style={{ width: 32, height: 32, borderRadius: 8, background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{icon}</div>
             </div>
-            <div style={{ fontSize: 42, fontVariationSettings: '"wght" 900', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color }}>{count}</div>
+            <div className="truncate" style={{ fontSize: isMobile ? 32 : 42, fontVariationSettings: '"wght" 900', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1, color }}>{count}</div>
             <div style={{ fontSize: 10, color: '#e2f4ff', opacity: 0.4, margin: '6px 0 14px 0', fontWeight: 600 }}>anomalies detected</div>
             <div style={{ height: 3, background: 'rgba(255,255,255,.08)', borderRadius: 99, marginBottom: 14 }}>
                 <div className="acard-fill" style={{ '--w': widthVar, height: '100%', background: `linear-gradient(90deg, transparent, ${color})` }} />
@@ -339,8 +340,12 @@ export default function App() {
         const csv = [keys.join(','), ...filteredHistorical.map(r => keys.map(k => k === 'timestamp' && r.timestamp instanceof Date ? r.timestamp.toISOString() : r[k] ?? '').join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `ocean-blue-${selectedYear}-data.csv`; a.click();
-        URL.revokeObjectURL(url);
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            window.open(url, '_blank');
+        } else {
+            const a = document.createElement('a'); a.href = url; a.download = `ocean-blue-${selectedYear}-data.csv`; a.click();
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 100);
     }, [filteredHistorical, selectedYear]);
 
     const handleExportJSON = useCallback(() => {
@@ -352,8 +357,12 @@ export default function App() {
         }), null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `ocean-blue-${selectedYear}-data.json`; a.click();
-        URL.revokeObjectURL(url);
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            window.open(url, '_blank');
+        } else {
+            const a = document.createElement('a'); a.href = url; a.download = `ocean-blue-${selectedYear}-data.json`; a.click();
+        }
+        setTimeout(() => URL.revokeObjectURL(url), 100);
     }, [filteredHistorical, selectedYear]);
 
     const lastUpdatedStr = useMemo(
@@ -550,7 +559,74 @@ export default function App() {
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mt-2">
+                                    {/* ═══ MOBILE EXPORT & COMPARE BLOCKS ═══ */}
+                                    <div className="md:hidden w-full flex flex-col mb-2 mt-2">
+                                        <div className="flex gap-3 mb-4">
+                                            <button
+                                                onClick={handleExportCSV}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm font-semibold text-slate-300 active:bg-slate-800 transition-all min-h-[44px]"
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                    <path d="M8 2v8M5 7l3 3 3-3" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M3 12h10" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                                                </svg>
+                                                Export CSV
+                                            </button>
+                                            <button
+                                                onClick={handleExportJSON}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 border border-slate-700 text-sm font-semibold text-slate-300 active:bg-slate-800 transition-all min-h-[44px]"
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                                    <path d="M8 2v8M5 7l3 3 3-3" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <path d="M3 12h10" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" />
+                                                </svg>
+                                                Export JSON
+                                            </button>
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold px-1">
+                                                Compare with year
+                                            </div>
+                                            <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap" style={{ WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+                                                <button
+                                                    onClick={() => setCompareYear(null)}
+                                                    className={`flex-shrink-0 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all min-h-[44px] ${compareYear === null
+                                                            ? 'bg-slate-700 border-slate-500 text-white'
+                                                            : 'bg-slate-900 border-slate-800 text-slate-500'
+                                                        }`}
+                                                >
+                                                    None
+                                                </button>
+                                                {YEARS.map(year => (
+                                                    <button
+                                                        key={year}
+                                                        onClick={() => setCompareYear(compareYear === year ? null : year)}
+                                                        className={`flex-shrink-0 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all min-h-[44px] ${compareYear === year
+                                                                ? 'bg-violet-950 border-violet-700 text-violet-300'
+                                                                : 'bg-slate-900 border-slate-800 text-slate-500'
+                                                            }`}
+                                                    >
+                                                        {year}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {compareYear && (
+                                                <div className="flex items-center gap-3 mt-3 px-1">
+                                                    <div className="flex items-center gap-2 text-xs text-slate-400">
+                                                        <div className="w-8 h-0.5 bg-current rounded"></div>
+                                                        {selectedYear} (selected)
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-xs text-violet-400">
+                                                        <div className="w-8 h-0.5 border-t border-dashed border-current"></div>
+                                                        {compareYear} (compare)
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="hidden md:flex items-center gap-3 mt-2">
                                         <div style={{ position: 'relative' }}>
                                             <button onClick={() => setShowExportDropdown(!showExportDropdown)}
                                                 style={{ padding: '3px 8px', fontSize: 8, borderRadius: 99, background: 'transparent', border: '1px solid #22d3ee', color: '#22d3ee', fontWeight: 700, cursor: 'pointer' }}>
@@ -606,9 +682,10 @@ export default function App() {
                                     <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
                                         MONTH
                                     </div>
-                                    <div className="flex flex-nowrap overflow-x-auto" style={{ gap: 6, paddingBottom: 6 }}>
+                                    <div className="flex overflow-x-auto flex-nowrap gap-2 pb-1" style={{ WebkitOverflowScrolling: 'touch', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
                                         {MONTHS.map((m, i) => (
                                             <button key={m} onClick={() => setSelectedMonth(i)}
+                                                className="flex-shrink-0"
                                                 style={{
                                                     padding: '8px 16px',
                                                     borderRadius: 99,

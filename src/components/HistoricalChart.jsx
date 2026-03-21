@@ -237,13 +237,14 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
             </div>
 
             {/* Compare legend */}
+            {/* Compare legend */}
             {compareYear && (
-                <div style={{ display: 'flex', gap: 12, marginBottom: 8, fontSize: '0.7rem' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div className="flex flex-col md:flex-row" style={{ gap: 12, marginBottom: 8, fontSize: '0.7rem' }}>
+                    <span className="w-full md:w-auto" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 16, height: 2, background: param.color, display: 'inline-block' }} />
                         <span style={{ color: '#94a3b8' }}>Selected year</span>
                     </span>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span className="w-full md:w-auto" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ width: 16, height: 2, background: param.color, opacity: 0.4, display: 'inline-block', borderTop: '1px dashed' }} />
                         <span style={{ color: '#94a3b8' }}>Compare ({compareYear})</span>
                     </span>
@@ -420,7 +421,7 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
     }
 
     return (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 overflow-hidden w-full">
             {HIST_PARAMS.map((param) => (
                 <HistParamChart
                     key={param.key}
