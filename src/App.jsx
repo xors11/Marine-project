@@ -213,22 +213,6 @@ export default function App() {
     // Compare Mode (Live Forecast Multi-Buoy feature)
     const [compareMode, setCompareMode] = useState(false);
 
-    // Swipe handling
-    const [touchStartX, setTouchStartX] = useState(null);
-    const handleTouchStart = (e) => setTouchStartX(e.targetTouches[0].clientX);
-    const handleTouchEnd = (e) => {
-        if (!touchStartX) return;
-        const touchEndX = e.changedTouches[0].clientX;
-        const diff = touchStartX - touchEndX;
-        if (Math.abs(diff) > 50) {
-            const tabs = ['live', 'historical', 'fisheries', 'cyclones'];
-            const currentIndex = tabs.indexOf(viewMode);
-            if (diff > 0 && currentIndex < tabs.length - 1) setViewMode(tabs[currentIndex + 1]);
-            if (diff < 0 && currentIndex > 0) setViewMode(tabs[currentIndex - 1]);
-        }
-        setTouchStartX(null);
-    };
-
     const location = LOCATIONS.find(l => l.id === locationId) || LOCATIONS[0];
     const isHistorical = viewMode === 'historical';
 
@@ -440,10 +424,7 @@ export default function App() {
     }, [data]);
 
     return (
-        <div className="flex flex-col md:flex-row h-screen overflow-hidden relative"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-        >
+        <div className="flex flex-col md:flex-row h-screen overflow-hidden relative">
             <div className="hidden md:block">
                 <Sidebar
                     locationId={locationId} onLocationChange={handleLocationChange}
