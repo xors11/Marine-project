@@ -418,7 +418,9 @@ const OceanChart = memo(function OceanChart({ data, activeParams, showMovingAver
     );
 
     const paramsToRender = useMemo(
-        () => PARAMETERS.filter((p) => activeParams.includes(p.key)),
+        () => PARAMETERS.filter(
+            (p) => activeParams.includes(p.key) || (typeof window !== 'undefined' && window.innerWidth < 768)
+        ),
         [activeParams]
     );
 

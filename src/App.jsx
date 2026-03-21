@@ -693,64 +693,82 @@ export default function App() {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">
-                                {/* Mobile Buoy Selector (Step 2) */}
-                                <div className="md:hidden mt-2 mb-1">
-                                    <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold">
-                                        Buoy Location
+                                {/* ═══ MOBILE BUOY + PARAMETER SELECTOR ═══ */}
+                                <div className="md:hidden mb-4 space-y-3 mt-2">
+                                    {/* BUOY SELECTOR */}
+                                    <div>
+                                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold px-1">
+                                            Buoy Location
+                                        </div>
+                                        <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap">
+                                            {BUOYS.map(buoy => {
+                                                const isActive = activeBuoy?.id === buoy.id || locationId === buoy.id;
+                                                const bData = buoyData[buoy.id];
+                                                return (
+                                                    <button
+                                                        key={buoy.id}
+                                                        onClick={() => setActiveBuoy(buoy)}
+                                                        className={`flex-shrink-0 flex flex-col px-3 py-2.5 rounded-xl border text-left transition-all min-w-[110px] ${isActive ? 'bg-cyan-950 border-cyan-700' : 'bg-slate-900 border-slate-800 active:border-slate-600'}`}
+                                                    >
+                                                        <div className="flex items-center gap-1.5 mb-1">
+                                                            <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isActive ? 'bg-cyan-400' : 'bg-slate-600'}`} />
+                                                            <span className={`text-[10px] font-bold truncate ${isActive ? 'text-cyan-300' : 'text-slate-400'}`}>
+                                                                {buoy.name}
+                                                            </span>
+                                                        </div>
+                                                        <div className={`text-[9px] ${isActive ? 'text-slate-400' : 'text-slate-600'}`}>
+                                                            {buoy.label}
+                                                        </div>
+                                                        {/* STEP 6: Add wave height */}
+                                                        <div className="flex gap-2 mt-1.5 flex-wrap">
+                                                            <span className={`text-[10px] font-semibold ${isActive ? 'text-orange-400' : 'text-slate-500'}`}>
+                                                                {bData?.sst != null ? `${bData.sst.toFixed(1)}°C` : '—'}
+                                                            </span>
+                                                            <span className={`text-[10px] font-semibold ${isActive ? 'text-cyan-400' : 'text-slate-500'}`}>
+                                                                {bData?.wind != null ? `${bData.wind.toFixed(1)}m/s` : '—'}
+                                                            </span>
+                                                            <span className={`text-[10px] font-semibold ${isActive ? 'text-green-400' : 'text-slate-500'}`}>
+                                                                {bData?.wave != null ? `${bData.wave.toFixed(1)}m` : '—'}
+                                                            </span>
+                                                        </div>
+                                                        {isActive && (
+                                                            <div className="text-[8px] text-cyan-600 mt-1 font-medium">
+                                                                viewing ●
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
-                                    <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap">
-                                        {BUOYS.map(buoy => (
-                                            <button
-                                                key={buoy.id}
-                                                onClick={() => setActiveBuoy(buoy)}
-                                                className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${activeBuoy?.id === buoy.id
-                                                        ? 'bg-cyan-950 border-cyan-700 text-cyan-300'
-                                                        : 'bg-slate-900 border-slate-700 text-slate-400'
-                                                    }`}
-                                            >
-                                                <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${activeBuoy?.id === buoy.id ? 'bg-cyan-400' : 'bg-slate-600'
-                                                    }`} />
-                                                <div className="text-left">
-                                                    <div>{buoy.name}</div>
-                                                    <div className="text-[9px] font-normal opacity-70">{buoy.label}</div>
-                                                </div>
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
 
-                                {/* Mobile 3-Buoy Snapshot (Step 7) */}
-                                <div className="md:hidden mb-3 grid grid-cols-3 gap-2">
-                                    {BUOYS.map(buoy => {
-                                        const bData = buoyData[buoy.id] || {};
-                                        const isActive = activeBuoy?.id === buoy.id;
-                                        return (
-                                            <button
-                                                key={buoy.id}
-                                                onClick={() => setActiveBuoy(buoy)}
-                                                className={`rounded-xl p-2.5 border text-left transition-all ${isActive
-                                                        ? 'bg-cyan-950 border-cyan-700'
-                                                        : 'bg-slate-900 border-slate-800'
-                                                    }`}
-                                            >
-                                                <div className="text-[9px] font-bold text-slate-300 truncate mb-1">
-                                                    {buoy.name.split(' ').slice(-2).join(' ')}
-                                                </div>
-                                                <div className={`text-sm font-bold ${isActive ? 'text-cyan-400' : 'text-slate-400'
-                                                    }`}>
-                                                    {bData?.sst != null ? `${bData.sst.toFixed(1)}°` : '—'}
-                                                </div>
-                                                <div className="text-[9px] text-slate-500">
-                                                    {bData?.wind != null ? `${bData.wind.toFixed(1)}m/s` : 'offline'}
-                                                </div>
-                                                {isActive && (
-                                                    <div className="text-[8px] text-cyan-500 mt-1">
-                                                        viewing ●
-                                                    </div>
-                                                )}
-                                            </button>
-                                        );
-                                    })}
+                                    {/* PARAMETER SELECTOR */}
+                                    <div>
+                                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-2 font-semibold px-1">
+                                            Parameter
+                                        </div>
+                                        <div className="flex gap-2 overflow-x-auto pb-1 flex-nowrap">
+                                            {[
+                                                { id: 'sea_surface_temp', label: 'Sea Surface Temp', short: 'SST', unit: '°C', activeClass: 'bg-orange-950 border-orange-700 text-orange-300', dotClass: 'bg-orange-400' },
+                                                { id: 'wind_speed', label: 'Wind Speed', short: 'Wind', unit: 'm/s', activeClass: 'bg-cyan-950 border-cyan-700 text-cyan-300', dotClass: 'bg-cyan-400' },
+                                                { id: 'air_pressure', label: 'Air Pressure', short: 'Pressure', unit: 'hPa', activeClass: 'bg-violet-950 border-violet-700 text-violet-300', dotClass: 'bg-violet-400' },
+                                                { id: 'wave_height', label: 'Wave Height', short: 'Wave', unit: 'm', activeClass: 'bg-green-950 border-green-700 text-green-300', dotClass: 'bg-green-400' }
+                                            ].map(param => {
+                                                const isActive = activeParams.includes(param.id);
+                                                return (
+                                                    <button
+                                                        key={param.id}
+                                                        onClick={() => toggleParam(param.id)}
+                                                        className={`flex-shrink-0 flex items-center gap-2 px-3 py-2.5 rounded-xl border text-xs font-semibold transition-all ${isActive ? param.activeClass : 'bg-slate-900 border-slate-800 text-slate-500'}`}
+                                                    >
+                                                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isActive ? param.dotClass : 'bg-slate-600'}`} />
+                                                        <span>{param.short}</span>
+                                                        <span className="text-[9px] opacity-60 font-normal">{param.unit}</span>
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Compare Toggle (Phase 2 Change 1) */}
