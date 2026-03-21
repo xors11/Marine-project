@@ -165,11 +165,12 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
                 .hexPolygonAltitude(0.005)
                 (container);
 
-            // Auto rotate
-            globe.controls().autoRotate = true;
+            // Auto rotate (disable on mobile for performance/UX)
+            const isDesktop = window.innerWidth > 768;
+            globe.controls().autoRotate = isDesktop;
             globe.controls().autoRotateSpeed = 0.3;
             container.addEventListener('mouseenter', () => { globe.controls().autoRotate = false; });
-            container.addEventListener('mouseleave', () => { globe.controls().autoRotate = true; });
+            container.addEventListener('mouseleave', () => { globe.controls().autoRotate = isDesktop; });
 
             // Initial camera
             globe.pointOfView({ lat: 12, lng: 80, altitude: 2.5 }, 1000);

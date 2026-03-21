@@ -241,8 +241,8 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
   return (
     <div
       ref={fisheriesRef}
-      className="flex flex-col animate-in fade-in duration-700 bg-[#060f1e] text-slate-200 p-4 lg:p-6"
-      style={{ minHeight: '100vh', margin: '-2rem -2.5rem', padding: '2rem 2.5rem' }}
+      className="flex flex-col animate-in fade-in duration-700 bg-[#060f1e] text-slate-200 p-3 md:p-6 -m-3 md:-m-8 pb-20 md:pb-6"
+      style={{ minHeight: '100vh' }}
     >
       <style dangerouslySetInnerHTML={{ __html: `@keyframes zpulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.4; transform:scale(1.4)} }` }} />
 
@@ -382,7 +382,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       />
 
       {/* ROW 2: Triple Ring Gauge & Species Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 items-start">
         {/* STEP 8: 1fr Triple-Ring Gauge */}
         <div className="col-span-1 h-fit">
           <SustainabilityGaugeAdvanced
@@ -405,7 +405,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       </div>
 
       {/* ROW 3: Smart Alerts & Risk Drivers */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
         <SmartAlertsPanel
           species={displaySpecies}
           msyUtilizationFn={msyUtilization}

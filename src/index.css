@@ -214,11 +214,7 @@ input[type='range'] {
     border-radius: 12px;
   }
 
-  /* Grid adjustments for smaller screens */
-  .grid {
-    grid-template-columns: 1fr !important;
-    gap: 1rem !important;
-  }
+
 
   /* Typography improvements */
   body {

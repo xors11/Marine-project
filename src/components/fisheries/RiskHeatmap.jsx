@@ -23,7 +23,7 @@ export default function RiskHeatmap({ species, msyUtilizationFn }) {
 
             <div className="overflow-y-auto custom-scrollbar flex-1 w-full relative h-[185px]">
                 {/* Fixed Grid exactly as requested in URGENT FIX */}
-                <div className="grid grid-cols-9 gap-1 w-full">
+                <div className="grid grid-cols-5 md:grid-cols-9 gap-1 w-full">
                     {species.map(s => {
                         const style = getHealthColor(s.stock_health_percent);
                         const msy = msyUtilizationFn(s);

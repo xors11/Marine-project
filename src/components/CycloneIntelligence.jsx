@@ -133,13 +133,13 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
             </div>
 
             {/* ═══════ MAIN LAYOUT: Left Panel + Globe/Map + Right Panel ═══════ */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, auto) 1fr 260px', gap: '1rem', minHeight: '520px' }}>
+            <div className="flex flex-col md:grid md:grid-cols-[minmax(340px,auto)_1fr_260px] gap-4 md:min-h-[520px]">
 
                 {/* ─── LEFT PANEL: Multi-Buoy Hazard Inputs ─── */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 
                     {/* 3-Column Panel */}
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-2 pb-2 md:pb-0 snap-x">
                         {buoyRisks.map(b => {
                             const bColor = BUOY_COLORS[b.id] || '#4db8e8';
                             const sstColor = b.sst > 28.5 ? '#f97316' : b.sst < 27 ? '#60a5fa' : '#94a3b8';
@@ -147,7 +147,7 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
                             const pColor = b.pressure < 1005 ? '#f87171' : b.pressure <= 1010 ? '#fb923c' : '#4ade80';
 
                             return (
-                                <div key={b.id} className="bg-slate-900 border border-slate-700 rounded-xl p-3 flex flex-col justify-between" style={{ borderTop: `3px solid ${bColor}` }}>
+                                <div key={b.id} className="min-w-[140px] md:min-w-0 snap-start bg-slate-900 border border-slate-700 rounded-xl p-3 flex flex-col justify-between" style={{ borderTop: `3px solid ${bColor}` }}>
                                     <div className="mb-2">
                                         <div className="text-[11px] font-bold truncate" style={{ color: bColor }} title={b.name}>{b.name.replace('Ocean', '').replace('Indian', 'IO')}</div>
                                         <div className="text-[9px] text-slate-500 truncate">{b.region}</div>
@@ -197,7 +197,7 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
                 </div>
 
                 {/* ─── CENTER: 3D Globe or 2D Map ─── */}
-                <div className="glass-panel" style={{ padding: '0.75rem', display: 'flex', flexDirection: 'column' }}>
+                <div className="glass-panel flex flex-col p-3 min-h-[300px] md:min-h-0">
                     {show2D ? (
                         <CycloneMap tracksData={tracks} selectedYear={currentYear} />
                     ) : (
@@ -212,17 +212,17 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
                         />
                     )}
                     {/* Timeline slider + play controls */}
-                    <div style={{ padding: '0.75rem 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div className="flex flex-wrap md:flex-nowrap items-center gap-2 mt-3 p-1">
                         <button onClick={isPlaying ? pause : play} style={{
                             background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)',
-                            padding: '0.35rem 0.7rem', borderRadius: '6px', color: '#00d4ff',
+                            padding: '0.5rem 0.7rem', borderRadius: '6px', color: '#00d4ff',
                             cursor: 'pointer', fontWeight: 700, fontSize: '0.8rem', minWidth: '60px'
                         }}>
                             {isPlaying ? '⏸ Pause' : '▶ Play'}
                         </button>
                         <button onClick={reset} style={{
                             background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                            padding: '0.35rem 0.5rem', borderRadius: '6px', color: '#a0aec0',
+                            padding: '0.5rem 0.5rem', borderRadius: '6px', color: '#a0aec0',
                             cursor: 'pointer', fontSize: '0.8rem'
                         }}>
                             ↺ Reset
@@ -234,7 +234,7 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
                         <span style={{ color: '#fff', fontWeight: 800, fontSize: '1.1rem', minWidth: '3rem' }}>{currentYear}</span>
                         <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} style={{
                             background: '#1e293b', border: '1px solid #334155', color: '#fff',
-                            padding: '0.3rem 0.5rem', borderRadius: '6px', fontSize: '0.75rem', cursor: 'pointer'
+                            padding: '0.5rem 0.5rem', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer', minWidth: '60px'
                         }}>
                             <option value={0.5}>0.5×</option>
                             <option value={1}>1×</option>
@@ -274,7 +274,7 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
             </div>
 
             {/* ═══════ BOTTOM: Trend Graph + Decadal Risk ═══════ */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <CycloneTrendGraph tracksData={tracks} />
 
                 <div className="glass-panel" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column' }}>
@@ -292,7 +292,7 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
             </div>
 
             {/* ═══════ NEW SECTIONS: Risk Breakdown + Rapid Intensification ═══════ */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
+            <div className="flex flex-col md:grid md:grid-cols-[1fr_2fr] gap-4">
                 <RiskBreakdownPanel sst={highestRiskBuoy.sst} windSpeed={highestRiskBuoy.wind} pressure={highestRiskBuoy.pressure} />
                 <RapidIntensificationAlert summaryData={summaryRaw} />
             </div>

@@ -7,6 +7,8 @@ import OceanAnalyticsSummary, { HIST_ANALYTICS_PARAMS } from './components/Ocean
 import FisheriesIntelligence from './components/FisheriesIntelligence';
 import CycloneIntelligence from './components/CycloneIntelligence';
 import MultiBuoyDashboard from './components/MultiBuoyDashboard';
+import BottomNav from './components/BottomNav';
+import MobileHeader from './components/MobileHeader';
 import useMultiBuoyData from './hooks/useMultiBuoyData';
 import { useHistoricalBuoyData } from './hooks/useHistoricalBuoyData';
 import { LOCATIONS, PARAMETERS } from './data/constants';
@@ -141,7 +143,9 @@ function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, st
                     </div>
                 </div>
             )}
-            <Sparkline values={sparklineValues} color={color} />
+            <div className="hidden md:block">
+                <Sparkline values={sparklineValues} color={color} />
+            </div>
         </div>
     );
 }
@@ -207,6 +211,22 @@ export default function App() {
 
     // Compare Mode (Live Forecast Multi-Buoy feature)
     const [compareMode, setCompareMode] = useState(false);
+
+    // Swipe handling
+    const [touchStartX, setTouchStartX] = useState(null);
+    const handleTouchStart = (e) => setTouchStartX(e.targetTouches[0].clientX);
+    const handleTouchEnd = (e) => {
+        if (!touchStartX) return;
+        const touchEndX = e.changedTouches[0].clientX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) {
+            const tabs = ['live', 'historical', 'fisheries', 'cyclones'];
+            const currentIndex = tabs.indexOf(viewMode);
+            if (diff > 0 && currentIndex < tabs.length - 1) setViewMode(tabs[currentIndex + 1]);
+            if (diff < 0 && currentIndex > 0) setViewMode(tabs[currentIndex - 1]);
+        }
+        setTouchStartX(null);
+    };
 
     const location = LOCATIONS.find(l => l.id === locationId) || LOCATIONS[0];
     const isHistorical = viewMode === 'historical';
@@ -416,22 +436,32 @@ export default function App() {
     }, [data]);
 
     return (
-        <div style={{
-            display: 'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
-            height: '100vh', overflow: 'hidden', position: 'relative',
-        }}>
-            <Sidebar
-                locationId={locationId} onLocationChange={handleLocationChange}
-                activeParams={activeParams} onToggleParam={toggleParam}
-                onRefresh={refetch} isOpen={isSidebarOpen} onClose={closeSidebar}
-            />
+        <div className="flex flex-col md:flex-row h-screen overflow-hidden relative"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+        >
+            <div className="hidden md:block">
+                <Sidebar
+                    locationId={locationId} onLocationChange={handleLocationChange}
+                    activeParams={activeParams} onToggleParam={toggleParam}
+                    onRefresh={refetch} isOpen={isSidebarOpen} onClose={closeSidebar}
+                />
+            </div>
 
-            <main style={{
-                flex: 1, overflowY: 'auto', padding: '2rem 2.5rem',
-                background: 'linear-gradient(160deg, #020d18 0%, #04182e 60%, #071e2b 100%)',
-            }}>
-                {/* Header */}
-                <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
+            <main className="flex-1 overflow-y-auto p-3 md:p-8 pb-20 md:pb-8 bg-gradient-to-br from-[#020d18] via-[#04182e] to-[#071e2b]">
+                {/* Mobile Header inline dropdown */}
+                <MobileHeader
+                    activeTab={viewMode}
+                    activeLocation={locationId}
+                    setActiveLocation={handleLocationChange}
+                    activeParams={activeParams}
+                    toggleParam={toggleParam}
+                    onRefresh={refetch}
+                    isRefreshing={loading}
+                />
+
+                {/* Desktop Header */}
+                <div className="hidden md:flex items-start justify-between mb-6 flex-wrap gap-3">
                     <div className="flex items-start gap-3">
                         <button className="mobile-menu-btn" onClick={toggleSidebar}>☰</button>
                         <div>
@@ -512,7 +542,7 @@ export default function App() {
                                         <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
                                             YEAR
                                         </div>
-                                        <div className="flex year-scroll" style={{ gap: 8, paddingBottom: 6 }}>
+                                        <div className="flex year-scroll overflow-x-auto flex-nowrap" style={{ gap: 8, paddingBottom: 6 }}>
                                             {YEARS.map(y => (
                                                 <button key={y} onClick={() => { setSelectedYear(y); setSelectedMonth(0); setCompareYear(null); }}
                                                     style={{
@@ -535,7 +565,7 @@ export default function App() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3 mt-2">
+                                    <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 mt-2">
                                         <div style={{ position: 'relative' }}>
                                             <button onClick={() => setShowExportDropdown(!showExportDropdown)}
                                                 style={{ padding: '3px 8px', fontSize: 8, borderRadius: 99, background: 'transparent', border: '1px solid #22d3ee', color: '#22d3ee', fontWeight: 700, cursor: 'pointer' }}>
@@ -591,7 +621,7 @@ export default function App() {
                                     <div style={{ fontSize: 9, color: '#22d3ee', fontWeight: 700, letterSpacing: '0.13em', textTransform: 'uppercase', marginBottom: 4 }}>
                                         MONTH
                                     </div>
-                                    <div className="flex flex-wrap" style={{ gap: 6 }}>
+                                    <div className="flex flex-nowrap overflow-x-auto" style={{ gap: 6, paddingBottom: 6 }}>
                                         {MONTHS.map((m, i) => (
                                             <button key={m} onClick={() => setSelectedMonth(i)}
                                                 style={{
@@ -610,7 +640,7 @@ export default function App() {
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'flex', gap: 13, marginBottom: 8, flexWrap: 'wrap' }}>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2">
                                     <AnomalySummaryCard count={histStats.WTMP?.anomalyCount ?? 0}
                                         modCount={histStats.WTMP?.moderateCount ?? 0}
                                         extremeCount={histStats.WTMP?.extremeCount ?? 0}
@@ -629,7 +659,6 @@ export default function App() {
                                         extremeCount={(histStats.WTMP?.extremeCount ?? 0) + (histStats.WSPD?.extremeCount ?? 0) + (histStats.WVHT?.extremeCount ?? 0) + (histStats.PRES?.extremeCount ?? 0)}
                                         label="Extreme" color="#ef4444" icon={<span style={{ fontSize: 13, fontWeight: 900, color: '#ef4444' }}>⚡</span>} widthVar="10%" />
                                 </div>
-
 
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 9 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -714,7 +743,7 @@ export default function App() {
                                         )}
 
                                         {/* ═══ Enhanced Summary Cards (Change 2) ═══ */}
-                                        <div className="grid grid-cols-4 gap-3">
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                             <EnhancedSummaryCard
                                                 label="Sea Surface Temp" value={liveSST} unit="°C"
                                                 color="#f97316" borderColor="#f97316" delta={sstDelta}
@@ -752,18 +781,18 @@ export default function App() {
                                         </div>
 
                                         {/* ═══ Time Window Filter Pills (Change 3) ═══ */}
-                                        <div className="flex gap-2 items-center mb-1">
-                                            <span className="text-xs text-slate-500 mr-1">View range:</span>
+                                        <div className="flex gap-2 items-center mb-1 overflow-x-auto flex-nowrap pb-1">
+                                            <span className="text-xs text-slate-500 mr-1 flex-shrink-0">View range:</span>
                                             {TIME_WINDOWS.map(tw => (
                                                 <button key={tw} onClick={() => setTimeWindow(tw)}
-                                                    className={tw === timeWindow
+                                                    className={`flex-shrink-0 ${tw === timeWindow
                                                         ? 'bg-cyan-400 text-slate-900 font-bold border-cyan-400'
-                                                        : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-300'}
+                                                        : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-300'}`}
                                                     style={{ border: '1px solid', borderRadius: '9999px', padding: '0.25rem 0.75rem', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s' }}>
                                                     {tw}
                                                 </button>
                                             ))}
-                                            <div style={{ marginLeft: 'auto' }}>
+                                            <div className="ml-auto flex-shrink-0 pl-2">
                                                 <MAToggle enabled={showMA} onToggle={toggleMA} />
                                             </div>
                                         </div>
@@ -794,6 +823,7 @@ export default function App() {
                         )
                 )}
             </main>
+            <BottomNav activeTab={viewMode} onTabChange={setViewMode} />
         </div>
     );
 }

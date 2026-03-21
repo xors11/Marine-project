@@ -196,7 +196,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
     }, [chartData, forecastData]);
 
     return (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 mb-4">
+        <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-5 mb-4 overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">

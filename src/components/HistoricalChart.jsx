@@ -204,11 +204,11 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
     }, [chartData, param.key, s]);
 
     return (
-        <div style={{
+        <div className="overflow-hidden" style={{
             background: 'rgba(6,14,30,.75)',
             border: '1px solid rgba(51,65,85,.38)',
             borderRadius: '12px',
-            padding: '16px 18px'
+            padding: window.innerWidth < 768 ? '12px 10px' : '16px 18px'
         }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
@@ -396,6 +396,11 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
                 const maValues = computeMovingAverage(data, primaryKey, 24);
                 maValues.forEach((v, i) => { rows[i][`${primaryKey}_ma`] = v; });
             });
+        }
+
+        // Downsample for mobile performance
+        if (typeof window !== 'undefined' && window.innerWidth < 768 && rows.length > 50) {
+            return rows.filter((_, i) => i % 2 === 0);
         }
 
         return rows;
