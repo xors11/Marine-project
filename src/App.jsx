@@ -85,68 +85,153 @@ function Sparkline({ values, color }) {
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || 1;
+    const height = 36;
+
     const points = values.map((v, i) => {
-        const x = (i / (values.length - 1)) * 70;
-        const y = 45 - ((v - min) / range) * 40;
+        const x = (i / (values.length - 1)) * 100;
+        const y = height - ((v - min) / range) * (height - 4) - 2;
         return `${x},${y}`;
-    }).join(' ');
+    });
+
+    const linePath = `M ${points[0]} ` + points.slice(1).map(p => `L ${p}`).join(' ');
+    const fillPath = `${linePath} L 100,${height} L 0,${height} Z`;
+    const gradId = `fillGrad-${color.replace('#', '')}`;
+    const lastV = values[values.length - 1];
+    const lastY = height - ((lastV - min) / range) * (height - 4) - 2;
 
     return (
-        <svg width="70" height="45" style={{ position: 'absolute', bottom: 4, right: 8, opacity: 0.2 }}>
-            <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" />
-        </svg>
+        <div style={{ position: 'relative', height: '36px', width: '100%', margin: '6px 0' }}>
+            <svg width="100%" height="36px" preserveAspectRatio="none" viewBox={`0 0 100 36`} style={{ display: 'block' }}>
+                <defs>
+                    <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+                        <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+                    </linearGradient>
+                </defs>
+                <path d={fillPath} fill={`url(#${gradId})`} />
+                <path d={linePath} fill="none" stroke={color} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+            </svg>
+            <div style={{
+                position: 'absolute', right: 0, top: `${lastY}px`,
+                width: 5, height: 5, borderRadius: '50%', background: color,
+                transform: 'translate(50%, -50%)', zIndex: 1
+            }} />
+        </div>
     );
 }
 
 // ─── Enhanced Summary Card (Change 2) ─────────────────────────────────────────
 function EnhancedSummaryCard({ label, value, unit, color, borderColor, delta, stats, sparklineValues, formatValue, dataAge }) {
     const formattedValue = value != null ? formatValue(value) : '—';
+
+    // Determine Alert State
+    let alertState = 'ok';
+    let statusColor = '#34d399';
+    let alertBorderStr = '#34d399';
+    const bgStr = delta?.bg || '';
+    if (bgStr.includes('red') || bgStr.includes('danger')) {
+        alertState = 'danger';
+        statusColor = '#ff4d6d';
+        alertBorderStr = '#ff4d6d';
+    } else if (bgStr.includes('amber') || bgStr.includes('orange') || bgStr.includes('warning') || bgStr.includes('blue')) {
+        alertState = 'warning';
+        statusColor = '#fbbf24';
+        alertBorderStr = '#fbbf24';
+    }
+
+    const statusIcon = alertState === 'ok' ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+    ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+    );
+
+    let sparkColor = color;
+    if (label.includes('Wind')) sparkColor = '#00d4ff';
+    if (label.includes('Wave')) sparkColor = '#34d399';
+    if (label.includes('Temp') || label.includes('SST')) sparkColor = '#f97316';
+    if (label.includes('Pressure')) sparkColor = '#a78bfa';
+
     return (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 md:p-4" style={{ borderLeft: `4px solid ${borderColor}`, position: 'relative', overflow: 'hidden' }}>
-            <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider mb-1 font-bold">{label}</div>
-            {dataAge?.label === 'fresh' && (
-                <div style={{
-                    position: 'absolute', top: 8, right: 8,
-                    display: 'flex', alignItems: 'center', gap: 3,
-                    background: 'rgba(74,222,128,0.1)',
-                    border: '1px solid rgba(74,222,128,0.2)',
-                    borderRadius: 99, padding: '1px 6px',
-                }}>
-                    <span className="animate-pulse" style={{
-                        width: 4, height: 4, borderRadius: '50%',
-                        background: '#4ade80', display: 'inline-block'
-                    }} />
-                    <span style={{ fontSize: 8, color: '#4ade80', fontWeight: 700 }}>LIVE</span>
-                </div>
-            )}
-            <div className="text-4xl md:text-3xl font-black md:font-bold leading-tight" style={{ color }}>
+        <div
+            className="flex flex-col relative rounded-xl glass-card"
+            style={{
+                background: 'rgba(6,14,30,0.7)',
+                border: '0.5px solid rgba(36,144,204,0.2)',
+                borderLeft: `2px solid ${alertBorderStr}`,
+                backdropFilter: 'blur(8px)',
+                overflow: 'visible',
+                padding: '14px',
+                gap: '6px'
+            }}
+            ref={(el) => {
+                if (el) {
+                    el.style.setProperty('border-left', `2px solid ${alertBorderStr}`, 'important');
+                }
+            }}
+        >
+            <style>{`
+                @keyframes metricLivePulse {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.5; transform: scale(0.8); }
+                }
+                .metric-live-dot {
+                    animation: metricLivePulse 1.4s ease-in-out infinite;
+                }
+            `}</style>
+
+            <div className="flex justify-between items-start w-full">
+                <div className="text-[10px] md:text-xs text-slate-400 uppercase tracking-wider font-bold m-0 p-0 leading-none">{label}</div>
+                {dataAge?.label === 'fresh' && (
+                    <div style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        background: 'rgba(52,211,153,0.1)',
+                        border: '0.5px solid rgba(52,211,153,0.25)',
+                        borderRadius: 99, padding: '2px 7px',
+                    }}>
+                        <div className="metric-live-dot" style={{ width: 5, height: 5, borderRadius: '50%', background: '#34d399' }} />
+                        <span style={{ fontSize: 9, color: '#34d399', fontWeight: 700, textTransform: 'uppercase' }}>Live</span>
+                    </div>
+                )}
+            </div>
+
+            <div className="text-4xl md:text-3xl font-black md:font-bold leading-none m-0 p-0" style={{ color }}>
                 {formattedValue}
                 <span className="text-sm md:text-base font-medium ml-1" style={{ opacity: 0.8 }}>{unit}</span>
             </div>
-            {/* Trend badge */}
-            <span className={`text-[10px] md:text-xs px-2.5 py-1 rounded-md font-bold inline-block mt-2 mb-3 ${delta.bg} ${delta.textColor}`}>
-                {delta.text}
-            </span>
-            {/* Stats row */}
+
+            <div className="flex items-center gap-1.5 m-0 p-0" style={{ fontSize: '11px', color: statusColor, fontWeight: 600 }}>
+                {statusIcon}
+                <span>{delta?.text?.replace(/^[▲▼●]+( )?/, '') || 'Live reading'}</span>
+            </div>
+
+            <Sparkline values={sparklineValues} color={sparkColor} />
+
             {stats && (
-                <div className="flex gap-4 border-t border-slate-700/50 pt-3 mt-1">
+                <div style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8,
+                    borderTop: '0.5px solid rgba(36,144,204,0.12)', paddingTop: '8px', margin: 0
+                }}>
                     <div>
-                        <div className="text-[10px] text-slate-500 font-bold">Min</div>
-                        <div className="text-xs font-bold text-slate-300">{stats.min != null ? formatValue(stats.min) : '—'}</div>
+                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ocean-400)' }}>Min</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#87d4f4' }}>{stats.min != null ? formatValue(stats.min) : '—'}</div>
                     </div>
                     <div>
-                        <div className="text-[10px] text-slate-500 font-bold">Mean</div>
-                        <div className="text-xs font-bold text-slate-300">{stats.mean != null ? formatValue(stats.mean) : '—'}</div>
+                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ocean-400)' }}>Mean</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#87d4f4' }}>{stats.mean != null ? formatValue(stats.mean) : '—'}</div>
                     </div>
                     <div>
-                        <div className="text-[10px] text-slate-500 font-bold">Max</div>
-                        <div className="text-xs font-bold text-slate-300">{stats.max != null ? formatValue(stats.max) : '—'}</div>
+                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--ocean-400)' }}>Max</div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#87d4f4' }}>{stats.max != null ? formatValue(stats.max) : '—'}</div>
                     </div>
                 </div>
             )}
-            <div className="hidden md:block">
-                <Sparkline values={sparklineValues} color={color} />
-            </div>
         </div>
     );
 }
@@ -592,8 +677,8 @@ export default function App() {
                                                 <button
                                                     onClick={() => setCompareYear(null)}
                                                     className={`flex-shrink-0 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all min-h-[44px] ${compareYear === null
-                                                            ? 'bg-slate-700 border-slate-500 text-white'
-                                                            : 'bg-slate-900 border-slate-800 text-slate-500'
+                                                        ? 'bg-slate-700 border-slate-500 text-white'
+                                                        : 'bg-slate-900 border-slate-800 text-slate-500'
                                                         }`}
                                                 >
                                                     None
@@ -603,8 +688,8 @@ export default function App() {
                                                         key={year}
                                                         onClick={() => setCompareYear(compareYear === year ? null : year)}
                                                         className={`flex-shrink-0 px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all min-h-[44px] ${compareYear === year
-                                                                ? 'bg-violet-950 border-violet-700 text-violet-300'
-                                                                : 'bg-slate-900 border-slate-800 text-slate-500'
+                                                            ? 'bg-violet-950 border-violet-700 text-violet-300'
+                                                            : 'bg-slate-900 border-slate-800 text-slate-500'
                                                             }`}
                                                     >
                                                         {year}
