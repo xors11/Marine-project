@@ -519,7 +519,7 @@ export default function App() {
 
     return (
         <div className="flex flex-col md:flex-row h-screen overflow-hidden relative">
-            <div className="sidebar-wrapper">
+            <div className="hidden md:block">
                 <Sidebar
                     locationId={locationId} onLocationChange={handleLocationChange}
                     activeParams={activeParams} onToggleParam={toggleParam}
@@ -527,22 +527,20 @@ export default function App() {
                 />
             </div>
 
-            <main className="main-content-area flex-1 overflow-y-auto p-3 md:p-8 pb-20 md:pb-8 bg-gradient-to-br from-[#020d18] via-[#04182e] to-[#071e2b]">
-                {/* Mobile Header inline dropdown (Hiding since user wants Desktop Header on Mobile) */}
-                <div className="hidden">
-                    <MobileHeader
-                        activeTab={viewMode}
-                        activeLocation={locationId}
-                        setActiveLocation={handleLocationChange}
-                        activeParams={activeParams}
-                        toggleParam={toggleParam}
-                        onRefresh={refetch}
-                        isRefreshing={loading}
-                    />
-                </div>
+            <main className="flex-1 overflow-y-auto p-3 md:p-8 pb-20 md:pb-8 bg-gradient-to-br from-[#020d18] via-[#04182e] to-[#071e2b]">
+                {/* Mobile Header inline dropdown */}
+                <MobileHeader
+                    activeTab={viewMode}
+                    activeLocation={locationId}
+                    setActiveLocation={handleLocationChange}
+                    activeParams={activeParams}
+                    toggleParam={toggleParam}
+                    onRefresh={refetch}
+                    isRefreshing={loading}
+                />
 
                 {/* Desktop Header */}
-                <div className="main-module-header flex items-start justify-between mb-6 flex-wrap gap-3">
+                <div className="hidden md:flex items-start justify-between mb-6 flex-wrap gap-3">
                     <div className="flex items-start gap-3">
                         <button className="mobile-menu-btn" onClick={toggleSidebar}>☰</button>
                         <div>
@@ -550,19 +548,17 @@ export default function App() {
                                 Ocean Data Explorer
                             </h1>
                             {isHistorical ? (
-                                <div className="buoy-status-bar" style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                                <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.25rem' }}>
                                     {location.label} &nbsp;·&nbsp; Historical Data — {selectedYear}
                                 </div>
                             ) : (
-                                <div className="buoy-status-bar">
-                                    <GlobalBuoyStrip
-                                        buoyData={buoyData}
-                                        buoys={BUOYS}
-                                        activeId={locationId}
-                                        onSelect={handleLocationChange}
-                                        lastUpdated={lastUpdated}
-                                    />
-                                </div>
+                                <GlobalBuoyStrip
+                                    buoyData={buoyData}
+                                    buoys={BUOYS}
+                                    activeId={locationId}
+                                    onSelect={handleLocationChange}
+                                    lastUpdated={lastUpdated}
+                                />
                             )}
                         </div>
                     </div>
