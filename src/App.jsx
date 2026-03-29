@@ -518,7 +518,7 @@ export default function App() {
     }, [data]);
 
     return (
-        <div className="flex flex-col md:flex-row h-screen overflow-hidden relative">
+        <div className="flex flex-col md:flex-row h-[100dvh] overflow-hidden relative">
             <div className="hidden md:block">
                 <Sidebar
                     locationId={locationId} onLocationChange={handleLocationChange}

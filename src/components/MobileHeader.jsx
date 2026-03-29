@@ -22,27 +22,33 @@ export default function MobileHeader({
     };
 
     return (
-        <div className="md:hidden sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/60 p-3 mb-3">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00d4ff] to-[#0055ff] flex items-center justify-center p-0.5 shadow-[0_0_15px_rgba(0,212,255,0.4)]">
-                        <div className="w-full h-full rounded-full bg-[#0a1628] flex items-center justify-center relative overflow-hidden">
-                            <Activity className="w-4 h-4 text-[#00d4ff] z-10 animate-pulse" />
+        <div className="md:hidden">
+            {/* Fixed Header */}
+            <div className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/60 p-3">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#00d4ff] to-[#0055ff] flex items-center justify-center p-0.5 shadow-[0_0_15px_rgba(0,212,255,0.4)]">
+                            <div className="w-full h-full rounded-full bg-[#0a1628] flex items-center justify-center relative overflow-hidden">
+                                <Activity className="w-4 h-4 text-[#00d4ff] z-10 animate-pulse" />
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="text-sm font-bold text-white tracking-wide">Ocean Blue</h1>
+                            <div className="text-[10px] text-cyan-400 font-semibold">{tabTitles[activeTab]}</div>
                         </div>
                     </div>
-                    <div>
-                        <h1 className="text-sm font-bold text-white tracking-wide">Ocean Blue</h1>
-                        <div className="text-[10px] text-cyan-400 font-semibold">{tabTitles[activeTab]}</div>
-                    </div>
-                </div>
 
-                <button
-                    onClick={() => setSheetOpen(true)}
-                    className="p-2 bg-slate-900 border border-slate-700/50 rounded-lg text-slate-300 active:scale-95 transition-transform"
-                >
-                    <Settings className="w-5 h-5" />
-                </button>
+                    <button
+                        onClick={() => setSheetOpen(true)}
+                        className="p-2 bg-slate-900 border border-slate-700/50 rounded-lg text-slate-300 active:scale-95 transition-transform"
+                    >
+                        <Settings className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
+
+            {/* Spacer to prevent content from hiding beneath the fixed header */}
+            <div className="h-[60px] w-full"></div>
 
             {/* Dropdown Sheet */}
             {sheetOpen && (
@@ -87,8 +93,8 @@ export default function MobileHeader({
                                             key={param.key}
                                             onClick={() => toggleParam(param.key)}
                                             className={`p-3 rounded-xl border text-left text-sm font-medium transition-colors ${activeParams.includes(param.key)
-                                                    ? 'bg-cyan-950/40 border-cyan-500/50 text-cyan-300'
-                                                    : 'bg-slate-900 border-slate-800 text-slate-400'
+                                                ? 'bg-cyan-950/40 border-cyan-500/50 text-cyan-300'
+                                                : 'bg-slate-900 border-slate-800 text-slate-400'
                                                 }`}
                                         >
                                             <div style={{ color: activeParams.includes(param.key) ? param.color : '' }}>{param.label}</div>
