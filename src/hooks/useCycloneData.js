@@ -14,11 +14,10 @@ export function useCycloneData() {
             setLoading(true);
             setError(null);
 
-            const [summaryRes, riskRes, tracksRes, liveRiskRes, summaryRawRes] = await Promise.all([
+            const [summaryRes, riskRes, tracksRes, summaryRawRes] = await Promise.all([
                 fetch(`/api/cyclones/summary`),
                 fetch(`/api/cyclones/risk${simulation ? '?simulate=sst_increase' : ''}`),
                 fetch(`/api/cyclones/tracks`),
-                fetch(`/api/cyclone-risk`),
                 fetch(`/api/cyclones/summary-raw`)
             ]);
 
@@ -29,8 +28,16 @@ export function useCycloneData() {
             const summary = await summaryRes.json();
             const risk = await riskRes.json();
             const tracks = await tracksRes.json();
-            const liveRisk = liveRiskRes.ok ? await liveRiskRes.json() : null;
             const summaryRaw = summaryRawRes.ok ? await summaryRawRes.json() : [];
+
+            // Compute live risk purely on the client-side
+            let liveRisk = null;
+            try {
+                const { fetchCycloneRisk } = await import('../services/api');
+                liveRisk = await fetchCycloneRisk(15, 85, summaryRaw);
+            } catch (lrErr) {
+                console.error("Live risk fetch failed (client-side):", lrErr);
+            }
 
             setData({ summary, risk, tracks, simulation, liveRisk, summaryRaw });
             setLoading(false);
