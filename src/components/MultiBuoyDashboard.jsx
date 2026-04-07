@@ -10,9 +10,8 @@ const BUOY_COLORS = {
 export default function MultiBuoyDashboard({ buoyData, buoys, timeWindow }) {
     // 1. Array of current latest data metrics 
     const currentData = buoys.map(b => {
-        const hist = buoyData[b.id]?.history || [];
-        const last = hist.length > 0 ? hist[hist.length - 1] : {};
-        return { ...b, sst: last.sea_surface_temp, wind: last.wind_speed, pressure: last.air_pressure };
+        const bd = buoyData[b.id] || {};
+        return { ...b, sst: bd.sst, wind: bd.wind, pressure: bd.pressure };
     }).filter(d => d.sst != null && d.wind != null && d.pressure != null);
 
     let maxSST = -Infinity, minSST = Infinity;

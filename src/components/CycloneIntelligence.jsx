@@ -57,12 +57,11 @@ export default function CycloneIntelligence({ buoyData, buoys }) {
 
     // Phase 3: Multi-Buoy Integration
     const buoyRisks = buoys.map(b => {
-        const hist = buoyData[b.id]?.history || [];
-        const last = hist.length > 0 ? hist[hist.length - 1] : {};
-        const sst = last.sea_surface_temp || 27;
-        const wind = last.wind_speed ? last.wind_speed * 3.6 : 20; // m/s to km/h
-        const pressure = last.air_pressure || 1013;
-        const waves = last.wave_height ? last.wave_height.toFixed(1) : 1.5;
+        const bd = buoyData[b.id] || {};
+        const sst = bd.sst || 27;
+        const wind = bd.wind ? bd.wind * 3.6 : 20; // m/s to km/h
+        const pressure = bd.pressure || 1013;
+        const waves = bd.wave ? bd.wave.toFixed(1) : 1.5;
 
         const simSST = simulationEnabled ? sst + 1 : sst;
         const riskData = computeRisk({ sst: simSST, windSpeed: wind, pressure });

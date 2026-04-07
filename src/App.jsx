@@ -464,7 +464,20 @@ export default function App() {
     }, [lastUpdated]);
 
     // ── Live values + deltas ──────────────────────────────────────────────────
-    const liveLast = data.length > 0 ? data[data.length - 1] : {};
+    const liveLast = useMemo(() => {
+        if (!data || data.length === 0) return {};
+        const nowMs = Date.now();
+        let closest = data[0];
+        let minDiff = Infinity;
+        for (const row of data) {
+            if (row.timestamp) {
+                const diff = Math.abs(new Date(row.timestamp).getTime() - nowMs);
+                if (diff < minDiff) { minDiff = diff; closest = row; }
+            }
+        }
+        return closest;
+    }, [data]);
+
     const liveSST = liveLast?.sea_surface_temp;
     const liveWind = liveLast?.wind_speed;
     const livePressure = liveLast?.air_pressure;
@@ -506,9 +519,23 @@ export default function App() {
         return { text: '▲▲ Very rough seas', bg: 'bg-red-950', textColor: 'text-red-400' };
     }, [liveWaveHeight]);
 
-    // ── Sparkline data (last 10 points) ───────────────────────────────────────
+    // ── Sparkline data (last 10 points up to current time) ───────────────────
     const sparklines = useMemo(() => {
-        const last10 = data.slice(-10);
+        if (!data || data.length === 0) return {};
+        const nowMs = Date.now();
+        let closestIdx = data.length - 1;
+        let minDiff = Infinity;
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].timestamp) {
+                const diff = Math.abs(new Date(data[i].timestamp).getTime() - nowMs);
+                if (diff < minDiff) { minDiff = diff; closestIdx = i; }
+            }
+        }
+
+        const endIdx = closestIdx + 1;
+        const startIdx = Math.max(0, endIdx - 10);
+        const last10 = data.slice(startIdx, endIdx);
+
         return {
             sea_surface_temp: last10.map(d => d.sea_surface_temp).filter(v => v != null),
             wind_speed: last10.map(d => d.wind_speed).filter(v => v != null),
@@ -821,7 +848,7 @@ export default function App() {
                             </div>
                         )
                 ) : viewMode === 'fisheries' ? (
-                    <FisheriesIntelligence currentData={data[data.length - 1] || {}} getRegionalSummary={getRegionalSummary} />
+                    <FisheriesIntelligence currentData={liveLast || {}} getRegionalSummary={getRegionalSummary} />
                 ) : viewMode === 'cyclones' ? (
                     <CycloneIntelligence buoyData={buoyData} buoys={BUOYS} />
                 ) : (

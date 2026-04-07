@@ -52,10 +52,22 @@ export default function useMultiBuoyData() {
                 )
             );
 
+            const nowMs = Date.now();
             const newData = {};
             results.forEach((rows, index) => {
                 const b = BUOYS[index];
-                const lastRow = rows.length > 0 ? rows[rows.length - 1] : {};
+
+                let lastRow = {};
+                if (rows.length > 0) {
+                    let minDiff = Infinity;
+                    for (const row of rows) {
+                        const diff = Math.abs(new Date(row.timestamp).getTime() - nowMs);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            lastRow = row;
+                        }
+                    }
+                }
 
                 newData[b.id] = {
                     ...b,
