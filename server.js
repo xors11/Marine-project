@@ -23,7 +23,7 @@ app.get("/api/buoy", async (req, res) => {
 
   try {
     const marineUrl = "https://marine-api.open-meteo.com/v1/marine";
-    const weatherUrl = "https://api.open-meteo.com/v1/forecast";
+    const weatherUrl = "https://historical-forecast-api.open-meteo.com/v1/forecast";
 
     const marineRes = await axios.get(marineUrl, {
       params: {
@@ -355,7 +355,7 @@ app.get("/api/cyclone-risk", async (req, res) => {
 
   try {
     const marineUrl = "https://marine-api.open-meteo.com/v1/marine";
-    const weatherUrl = "https://api.open-meteo.com/v1/forecast";
+    const weatherUrl = "https://historical-forecast-api.open-meteo.com/v1/forecast";
 
     const [marineRes, weatherRes] = await Promise.all([
       axios.get(marineUrl, {

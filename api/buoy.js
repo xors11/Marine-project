@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
         console.log(`[LIVE ${new Date().toISOString()}] Fetching buoy lat:${lat} lon:${lon}`);
 
         const marineUrl = "https://marine-api.open-meteo.com/v1/marine";
-        const weatherUrl = "https://api.open-meteo.com/v1/forecast";
+        const weatherUrl = "https://historical-forecast-api.open-meteo.com/v1/forecast";
 
         const marineRes = await axios.get(marineUrl, {
             params: {

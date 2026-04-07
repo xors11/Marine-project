@@ -328,7 +328,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                             />
                         )}
                         activeDot={activeDot}
-                        connectNulls={false}
+                        connectNulls={true}
                         isAnimationActive={false}
                     />
 

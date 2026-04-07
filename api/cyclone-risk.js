@@ -7,7 +7,7 @@ module.exports = async function handler(req, res) {
     try {
         const [marineRes, weatherRes] = await Promise.all([
             axios.get("https://marine-api.open-meteo.com/v1/marine", { params: { latitude: lat, longitude: lon, hourly: "wave_height,sea_surface_temperature", past_days: 1, forecast_days: 2, timezone: "auto" }, timeout: 10000 }),
-            axios.get("https://api.open-meteo.com/v1/forecast", { params: { latitude: lat, longitude: lon, hourly: "wind_speed_10m,surface_pressure", past_days: 1, forecast_days: 2, timezone: "auto" }, timeout: 10000 })
+            axios.get("https://historical-forecast-api.open-meteo.com/v1/forecast", { params: { latitude: lat, longitude: lon, hourly: "wind_speed_10m,surface_pressure", past_days: 1, forecast_days: 2, timezone: "auto" }, timeout: 10000 })
         ]);
         const marine = marineRes.data, weather = weatherRes.data;
         const times = weather.hourly?.time ?? [];

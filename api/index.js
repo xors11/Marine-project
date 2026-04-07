@@ -41,7 +41,7 @@ app.get("/api/buoy", async (req, res) => {
         const marineRes = await axios.get(url, { params, timeout: 10000 });
         const marine = marineRes.data;
 
-        const weatherUrl = "https://api.open-meteo.com/v1/forecast";
+        const weatherUrl = "https://historical-forecast-api.open-meteo.com/v1/forecast";
         const weatherParams = {
             latitude: lat,
             longitude: lon,
@@ -293,7 +293,7 @@ app.get("/api/cyclone-risk", async (req, res) => {
                 params: { latitude: lat, longitude: lon, hourly: "wave_height,sea_surface_temperature", past_days: 1, forecast_days: 2, timezone: "auto" },
                 timeout: 10000, headers: { "User-Agent": "Mozilla/5.0" }
             }),
-            axios.get("https://api.open-meteo.com/v1/forecast", {
+            axios.get("https://historical-forecast-api.open-meteo.com/v1/forecast", {
                 params: { latitude: lat, longitude: lon, hourly: "wind_speed_10m,surface_pressure", past_days: 1, forecast_days: 2, timezone: "auto" },
                 timeout: 10000, headers: { "User-Agent": "Mozilla/5.0" }
             })
