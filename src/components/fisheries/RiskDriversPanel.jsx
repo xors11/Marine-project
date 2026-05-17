@@ -63,8 +63,17 @@ export default function RiskDriversPanel({ displaySpecies, msyUtilizationFn, sst
     }).filter(d => d.count > 0);
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col h-full">
-            <h3 className="text-[9px] text-slate-600 uppercase tracking-widest font-bold mb-4">Primary Risk Drivers</h3>
+        <div style={{
+            background: '#040d1a',
+            border: '0.5px solid #0d2135',
+            borderRadius: 9,
+            borderTop: '1.5px solid #fb923c',
+            padding: '14px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+        }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44', marginBottom: 14, display: 'block' }}>Primary Risk Drivers</span>
 
             <div className="flex-1 overflow-auto custom-scrollbar pr-1">
                 {/* 6 Horizontal Bars */}
@@ -81,22 +90,25 @@ export default function RiskDriversPanel({ displaySpecies, msyUtilizationFn, sst
                 </div>
 
                 {/* Regional Indicators */}
-                <h3 className="text-[9px] text-slate-600 uppercase tracking-widest font-bold mt-6 mb-3">Regional Population Indicators</h3>
-                <div className="space-y-1">
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44', display: 'block', marginTop: 20, marginBottom: 10 }}>Regional Population Indicators</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {regionalData.length === 0 ? (
-                        <div className="text-center text-xs text-slate-500 py-2">No regional data for current selection.</div>
+                        <div style={{ textAlign: 'center', fontSize: 11, color: '#2a4a62', padding: '8px 0' }}>No regional data for current selection.</div>
                     ) : (
                         regionalData.map((rd, i) => (
-                            <div key={i} className="flex justify-between items-center text-xs p-2 bg-[#060f1e] rounded border border-slate-800">
-                                <span className="font-semibold truncate w-[85px] shrink-0" style={{ color: rd.color }}>{rd.region}</span>
-                                <span className="text-slate-500 w-[40px] text-center shrink-0">{rd.count} sp.</span>
-
-                                <div className="flex gap-2 shrink-0">
-                                    <span className="text-red-400 font-bold bg-red-950 px-1 rounded">{rd.critical} Crit</span>
-                                    <span className="text-green-400 font-bold bg-green-950 px-1 rounded">{rd.healthy} Safe</span>
+                            <div key={i} style={{
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                fontSize: 11, padding: '6px 8px',
+                                background: '#040f1f', borderRadius: 7,
+                                border: '0.5px solid #0d2135',
+                            }}>
+                                <span style={{ fontWeight: 600, width: 90, flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: rd.color }}>{rd.region}</span>
+                                <span style={{ color: '#2a4a62', width: 44, textAlign: 'center', flexShrink: 0, fontSize: 10 }}>{rd.count} sp.</span>
+                                <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(248,113,113,0.07)', border: '0.5px solid rgba(248,113,113,0.25)', color: '#f87171' }}>{rd.critical} Crit</span>
+                                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(74,222,128,0.07)', border: '0.5px solid rgba(74,222,128,0.25)', color: '#4ade80' }}>{rd.healthy} Safe</span>
                                 </div>
-
-                                <span className="text-cyan-400 bg-cyan-950 px-1 rounded shrink-0">MSY {rd.msyAvg}%</span>
+                                <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(34,211,238,0.07)', border: '0.5px solid rgba(34,211,238,0.2)', color: '#22d3ee', flexShrink: 0 }}>MSY {rd.msyAvg}%</span>
                             </div>
                         ))
                     )}

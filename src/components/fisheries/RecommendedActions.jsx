@@ -77,30 +77,60 @@ export default function RecommendedActions({ species, msyUtilizationFn, critThre
     };
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col mt-1">
-            <h3 className="text-[9px] text-slate-600 uppercase tracking-widest font-bold mb-4">Recommended Interventions</h3>
+        <div style={{
+            background: '#040d1a',
+            border: '0.5px solid #0d2135',
+            borderRadius: 9,
+            borderTop: '1.5px solid #22d3ee',
+            padding: '14px',
+            display: 'flex',
+            flexDirection: 'column',
+        }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44', marginBottom: 12, display: 'block' }}>Recommended Interventions</span>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {actions.map((act, i) => (
-                    <div key={i} className="bg-[#060f1e] border border-slate-700/50 p-4 rounded-lg flex flex-col justify-between h-full hover:border-slate-600 transition-colors">
-                        <div>
-                            <div className="flex gap-2 items-center mb-2">
-                                <span className="text-xl">{act.icon}</span>
-                                <h4 className="font-bold text-sm text-[#e2e8f0]">{act.title}</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
+                {actions.map((act, i) => {
+                    const typeColor = act.type === 'CRITICAL' ? '#f87171' : act.type === 'WARNING' ? '#fb923c' : act.type === 'INFO' ? '#22d3ee' : '#4ade80';
+                    const typeRgb   = act.type === 'CRITICAL' ? '248,113,113' : act.type === 'WARNING' ? '251,146,60' : act.type === 'INFO' ? '34,211,238' : '74,222,128';
+                    return (
+                        <div key={i} style={{
+                            background: '#040f1f',
+                            border: '0.5px solid #0d2135',
+                            borderLeft: `2px solid ${typeColor}`,
+                            borderRadius: 9,
+                            padding: '12px 14px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: 10,
+                        }}>
+                            <div>
+                                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6 }}>
+                                    <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{act.icon}</span>
+                                    <span style={{ fontWeight: 700, fontSize: 12, color: '#d4eef9', lineHeight: 1.3 }}>{act.title}</span>
+                                </div>
+                                <p style={{ fontSize: 11, color: '#2a4a62', lineHeight: 1.6 }}>{act.desc}</p>
                             </div>
-                            <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                                {act.desc}
-                            </p>
+                            <button
+                                id={`btn-${act.actionId}`}
+                                onClick={() => handleActionClick(act.actionId)}
+                                style={{
+                                    width: '100%', fontSize: 11, fontWeight: 700, padding: '7px',
+                                    borderRadius: 7, cursor: 'pointer',
+                                    background: `rgba(${typeRgb}, 0.08)`,
+                                    border: `0.5px solid rgba(${typeRgb}, 0.35)`,
+                                    color: typeColor,
+                                    transition: 'background 0.15s',
+                                    fontFamily: 'inherit',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = `rgba(${typeRgb}, 0.15)`}
+                                onMouseLeave={e => e.currentTarget.style.background = `rgba(${typeRgb}, 0.08)`}
+                            >
+                                {act.btnText}
+                            </button>
                         </div>
-                        <button
-                            id={`btn-${act.actionId}`}
-                            onClick={() => handleActionClick(act.actionId)}
-                            className={`w-full text-xs font-bold py-2 rounded shadow-lg cursor-pointer transition-colors ${act.btnColor}`}
-                        >
-                            {act.btnText}
-                        </button>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

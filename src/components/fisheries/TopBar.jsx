@@ -18,9 +18,20 @@ export default function TopBar({
 
             <div className="flex items-center gap-4 flex-wrap">
                 {/* Zone Badge */}
-                <div className="bg-red-950 border border-red-900 text-red-400 px-3 py-1.5 rounded-lg flex items-center gap-2 font-bold text-[11px] uppercase tracking-widest shadow-lg">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400" style={{ animation: 'zpulse 1.5s infinite' }} />
-                    HIGH EXPLOITATION ZONE
+                <div style={{
+                    borderLeft: '2px solid #f87171',
+                    background: 'rgba(248,113,113,0.07)',
+                    border: '0.5px solid rgba(248,113,113,0.2)',
+                    borderLeftWidth: 2,
+                    padding: '5px 12px',
+                    borderRadius: 7,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    fontWeight: 800, fontSize: 10,
+                    color: '#f87171',
+                    textTransform: 'uppercase', letterSpacing: '0.1em',
+                }}>
+                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#f87171', animation: 'zpulse 1.5s infinite', flexShrink: 0 }} />
+                    High Exploitation Zone
                 </div>
 
                 {/* Clickable Pills */}
@@ -31,12 +42,19 @@ export default function TopBar({
                             <button
                                 key={r}
                                 onClick={() => setActiveRegion(r)}
-                                className={`border rounded-full px-3 py-1 text-xs cursor-pointer transition-colors ${active
-                                    ? 'bg-blue-950 border-blue-600 text-blue-300 font-semibold'
-                                    : 'bg-slate-900 border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-400'
-                                    }`}
+                                style={{
+                                    padding: '4px 12px', borderRadius: 99, fontSize: 11, cursor: 'pointer',
+                                    fontWeight: active ? 700 : 400,
+                                    border: active ? '0.5px solid rgba(34,211,238,0.4)' : '0.5px solid #0d2135',
+                                    background: active ? 'rgba(34,211,238,0.08)' : '#040f1f',
+                                    color: active ? '#22d3ee' : '#2a4a62',
+                                    transition: 'all 0.15s',
+                                    fontFamily: 'inherit',
+                                }}
+                                onMouseEnter={e => !active && (e.currentTarget.style.color = '#4db8e8')}
+                                onMouseLeave={e => !active && (e.currentTarget.style.color = '#2a4a62')}
                             >
-                                {r} {regionCounts && regionCounts[r] !== undefined ? `(${regionCounts[r]})` : ''}
+                                {r}{regionCounts && regionCounts[r] !== undefined ? ` (${regionCounts[r]})` : ''}
                             </button>
                         );
                     })}

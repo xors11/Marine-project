@@ -10,6 +10,7 @@ import LoadingSpinner from './LoadingSpinner';
 import RecommendedActions from './fisheries/RecommendedActions';
 import TopBar from './fisheries/TopBar';
 import KPIStrip from './fisheries/KPIStrip';
+import SpeciesTrendChart from './fisheries/SpeciesTrendChart';
 
 
 export default function FisheriesIntelligence({ currentData, getRegionalSummary }) {
@@ -264,13 +265,26 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
 
       {/* STEP 6: CONDITIONAL BANNERS */}
       {isSimulating && (
-        <div className="bg-cyan-950 border border-cyan-800 rounded-lg px-4 py-2 mb-3 flex items-center justify-between">
-          <span className="text-xs text-cyan-400">
-            SIMULATION ACTIVE — 10% fishing reduction applied. Total catch: {originalTotal.toLocaleString()}t → {simulatedTotal.toLocaleString()}t ({improvingCount} species recovering)
+        <div style={{
+          borderLeft: '2px solid #22d3ee',
+          background: 'rgba(34,211,238,0.06)',
+          border: '0.5px solid rgba(34,211,238,0.18)',
+          borderLeftWidth: 2,
+          borderRadius: 7,
+          padding: '8px 14px',
+          marginBottom: 10,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+        }}>
+          <span style={{ fontSize: 11, color: '#22d3ee' }}>
+            <strong>SIMULATION ACTIVE</strong> — 10% fishing reduction applied. Total catch: {originalTotal.toLocaleString()}t → {simulatedTotal.toLocaleString()}t ({improvingCount} species recovering)
           </span>
           <button
             onClick={() => setIsSimulating(false)}
-            className="bg-cyan-900 border border-cyan-700 text-cyan-300 text-xs px-3 py-1 rounded-lg hover:bg-cyan-800 transition-colors cursor-pointer"
+            style={{
+              background: 'rgba(34,211,238,0.08)', border: '0.5px solid rgba(34,211,238,0.3)',
+              color: '#22d3ee', fontSize: 10, fontWeight: 700, padding: '3px 10px',
+              borderRadius: 6, cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
+            }}
           >
             Exit Simulation
           </button>
@@ -278,14 +292,34 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       )}
 
       {sstScenario === 'low' && (
-        <div className="bg-blue-950 border border-blue-800 text-blue-400 rounded-lg px-4 py-2 mb-3 text-xs leading-relaxed">
-          <strong>SST SCENARIO: {currentRegionalSST.toFixed(1)}°C (Regional Avg).</strong> Coral species under thermal stress. Warm-water species slightly benefited.
+        <div style={{
+          borderLeft: '2px solid #60a5fa',
+          background: 'rgba(96,165,250,0.06)',
+          border: '0.5px solid rgba(96,165,250,0.2)',
+          borderLeftWidth: 2,
+          borderRadius: 7,
+          padding: '8px 14px',
+          marginBottom: 10,
+          fontSize: 11, color: '#93c5fd',
+          lineHeight: 1.5,
+        }}>
+          <strong>SST SCENARIO: {currentRegionalSST.toFixed(1)}°C (Regional Avg).</strong> Coral species under thermal stress. Warm-water species slightly benefited.
         </div>
       )}
 
       {sstScenario === 'high' && (
-        <div className="bg-red-950 border border-red-800 text-red-400 rounded-lg px-4 py-2 mb-3 text-xs leading-relaxed">
-          <strong>SST SCENARIO: {currentRegionalSST.toFixed(1)}°C (Regional Max + 1°C).</strong> Thermal stress detected across {affectedCount} species. Coral bleaching risk elevated.
+        <div style={{
+          borderLeft: '2px solid #f87171',
+          background: 'rgba(248,113,113,0.06)',
+          border: '0.5px solid rgba(248,113,113,0.2)',
+          borderLeftWidth: 2,
+          borderRadius: 7,
+          padding: '8px 14px',
+          marginBottom: 10,
+          fontSize: 11, color: '#fca5a5',
+          lineHeight: 1.5,
+        }}>
+          <strong>SST SCENARIO: {currentRegionalSST.toFixed(1)}°C (Regional Max +1°C).</strong> Thermal stress detected across {affectedCount} species. Coral bleaching risk elevated.
         </div>
       )}
 
@@ -424,6 +458,14 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       {/* ROW 4: Heatmap */}
       <div className="mb-3 flex flex-col">
         <RiskHeatmap
+          species={displaySpecies}
+          msyUtilizationFn={msyUtilization}
+        />
+      </div>
+
+      {/* ROW 4b: Species Trend Chart */}
+      <div className="mb-3">
+        <SpeciesTrendChart
           species={displaySpecies}
           msyUtilizationFn={msyUtilization}
         />

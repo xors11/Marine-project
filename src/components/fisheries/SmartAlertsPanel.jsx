@@ -36,40 +36,47 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
 
     const getAlertStyle = (priority) => {
         if (priority === 'CRITICAL') return {
-            border: 'border-l-[#f87171]',
-            iconBg: 'bg-[#2a0505]',
-            iconColor: 'text-[#f87171]',
+            accentColor: '#f87171',
+            rgbBorder: '248,113,113',
             iconText: '!',
-            nameColor: 'text-[#f87171]',
-            badgeCss: 'bg-red-950 text-red-400 border-red-900',
             desc: (species) => `${species}: Critical status. Severe overfishing. Immediate action required.`
         };
         if (priority === 'HIGH') return {
-            border: 'border-l-[#fb923c]',
-            iconBg: 'bg-[#1e1000]',
-            iconColor: 'text-[#fb923c]',
+            accentColor: '#fb923c',
+            rgbBorder: '251,146,60',
             iconText: '▲',
-            nameColor: 'text-[#fb923c]',
-            badgeCss: 'bg-orange-950 text-orange-400 border-orange-900',
             desc: (species, msy) => `${species}: Declining status. ${Math.round(msy)}% MSY utilization. Intervention needed.`
         };
         return {
-            border: 'border-l-[#facc15]',
-            iconBg: 'bg-[#1a1800]',
-            iconColor: 'text-[#facc15]',
+            accentColor: '#facc15',
+            rgbBorder: '250,204,21',
             iconText: '–',
-            nameColor: 'text-[#facc15]',
-            badgeCss: 'bg-yellow-950 text-yellow-400 border-yellow-900',
             desc: (species) => `${species}: Moderate risk. Monitor over next 30 days.`
         };
     };
 
     return (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col h-full">
+        <div style={{
+            background: '#040d1a',
+            border: '0.5px solid #0d2135',
+            borderRadius: 9,
+            borderTop: '1.5px solid #f87171',
+            padding: '14px',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+        }}>
             {/* Header */}
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-[9px] text-slate-600 uppercase tracking-widest font-bold">Smart Alert Prioritization</h3>
-                <span className="bg-orange-950 text-orange-400 border border-orange-900 text-[8px] font-bold px-2 py-0.5 rounded">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44' }}>Smart Alert Prioritization</span>
+                <span style={{
+                    fontSize: 9, padding: '2px 8px', borderRadius: 99, fontWeight: 700,
+                    borderLeft: '2px solid #fb923c',
+                    background: 'rgba(251,146,60,0.07)',
+                    border: '0.5px solid rgba(251,146,60,0.25)',
+                    borderLeftWidth: 2,
+                    color: '#fb923c',
+                }}>
                     {allAlerts.length} active · {criticalCount} critical
                 </span>
             </div>
@@ -87,32 +94,54 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
                         const protectedSp = a.protected;
 
                         return (
-                            <div key={idx} className={`bg-[#060f1e] flex gap-2 p-[8px_9px] rounded-[7px] border-l-[3px] border-t border-r border-b border-t-slate-800 border-r-slate-800 border-b-slate-800 ${style.border}`}>
+                            <div key={idx} style={{
+                                background: '#040f1f',
+                                borderLeft: `2px solid ${style.accentColor}`,
+                                border: `0.5px solid rgba(${style.rgbBorder}, 0.2)`,
+                                borderLeftWidth: 2,
+                                borderRadius: 7,
+                                padding: '8px 10px',
+                                display: 'flex',
+                                gap: 8,
+                            }}>
 
                                 {/* 1. Icon */}
-                                <div className={`shrink-0 w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold ${style.iconBg} ${style.iconColor}`}>
+                                <div style={{
+                                    flexShrink: 0, width: 18, height: 18, borderRadius: '50%',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: 10, fontWeight: 800,
+                                    background: `rgba(${style.rgbBorder}, 0.1)`,
+                                    color: style.accentColor,
+                                }}>
                                     {style.iconText}
                                 </div>
 
                                 {/* 2. Middle Block */}
-                                <div className="flex-1 flex flex-col justify-center">
-                                    <div className={`text-[11px] font-bold leading-none mb-1 ${style.nameColor}`}>
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                    <div style={{ fontSize: 11, fontWeight: 800, lineHeight: 1, marginBottom: 4, color: style.accentColor }}>
                                         {a.species} {protectedSp && '🛡️'}
                                     </div>
-                                    <div className="text-[9px] text-[#4a6a8a] leading-[1.4] mb-1.5">
+                                    <div style={{ fontSize: 9, color: '#2a4a62', lineHeight: 1.5, marginBottom: 6 }}>
                                         {style.desc(a.species, msyPercent)}
                                     </div>
-                                    <div className="flex gap-1 flex-wrap">
-                                        <span className="bg-blue-950/40 text-blue-400 border border-blue-900/50 text-[9px] px-1.5 py-[1px] rounded">H: {Math.round(health)}%</span>
-                                        <span className={`${msyPercent > 90 ? 'bg-red-950/40 text-red-400 border-red-900/50' : 'bg-orange-950/40 text-orange-400 border-orange-900/50'} border text-[9px] px-1.5 py-[1px] rounded`}>MSY: {Math.round(msyPercent)}%</span>
-                                        {trend.toLowerCase().includes('declin') && <span className="bg-yellow-950/40 border border-yellow-900/50 text-yellow-400 text-[9px] px-1.5 py-[1px] rounded">Declining</span>}
-                                        {trend.toLowerCase().includes('critical') && <span className="bg-red-950/40 border border-red-900/50 text-red-400 text-[9px] px-1.5 py-[1px] rounded">Critical</span>}
-                                        {a.season_open === false && <span className="bg-green-950/40 border border-green-900/50 text-green-400 text-[9px] px-1.5 py-[1px] rounded">Spawning Q2</span>}
+                                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                        <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(34,211,238,0.07)', border: '0.5px solid rgba(34,211,238,0.2)', color: '#22d3ee' }}>H: {Math.round(health)}%</span>
+                                        <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: msyPercent > 90 ? 'rgba(248,113,113,0.07)' : 'rgba(251,146,60,0.07)', border: msyPercent > 90 ? '0.5px solid rgba(248,113,113,0.25)' : '0.5px solid rgba(251,146,60,0.25)', color: msyPercent > 90 ? '#f87171' : '#fb923c' }}>MSY: {Math.round(msyPercent)}%</span>
+                                        {trend.toLowerCase().includes('declin') && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(250,204,21,0.07)', border: '0.5px solid rgba(250,204,21,0.25)', color: '#facc15' }}>Declining</span>}
+                                        {trend.toLowerCase().includes('critical') && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(248,113,113,0.07)', border: '0.5px solid rgba(248,113,113,0.25)', color: '#f87171' }}>Critical</span>}
+                                        {a.season_open === false && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(74,222,128,0.07)', border: '0.5px solid rgba(74,222,128,0.25)', color: '#4ade80' }}>Spawning Q2</span>}
                                     </div>
                                 </div>
 
                                 {/* 3. Priority Badge */}
-                                <div className={`text-[8px] px-2 py-1 rounded font-bold border shrink-0 h-fit ${style.badgeCss}`}>
+                                <div style={{
+                                    fontSize: 8, padding: '2px 7px', borderRadius: 99, fontWeight: 800,
+                                    background: `rgba(${style.rgbBorder}, 0.1)`,
+                                    border: `0.5px solid rgba(${style.rgbBorder}, 0.3)`,
+                                    color: style.accentColor,
+                                    flexShrink: 0, alignSelf: 'flex-start',
+                                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                                }}>
                                     {a.priority}
                                 </div>
                             </div>
