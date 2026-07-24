@@ -11,6 +11,64 @@ app.use(cors());
 const PORT = process.env.PORT || 5000;
 
 /* ============================================================
+   HISTORICAL CSV CACHE & HELPER
+============================================================ */
+let historicalDataCache = null;
+let isParsing = false;
+const parsePromises = [];
+
+function getHistoricalData() {
+  if (historicalDataCache) return Promise.resolve(historicalDataCache);
+  return new Promise((resolve, reject) => {
+    parsePromises.push({ resolve, reject });
+    if (isParsing) return;
+    isParsing = true;
+
+    const filePath = path.join(__dirname, "data", "46042_master_2012_2023.csv");
+    if (!fs.existsSync(filePath)) {
+      isParsing = false;
+      const err = new Error("Historical CSV not found");
+      while (parsePromises.length) parsePromises.shift().reject(err);
+      return;
+    }
+
+    const results = [];
+    fs.createReadStream(filePath)
+      .pipe(csv())
+      .on("data", (row) => {
+        const timestamp = row.timestamp || row.TIMESTAMP || row.time || row.DATE || row.date || null;
+        let year = null;
+        if (timestamp) {
+          year = parseInt(timestamp.substring(0, 4));
+        }
+        results.push({
+          timestamp,
+          year,
+          WSPD: parseFloat(row.WSPD),
+          WTMP: parseFloat(row.WTMP),
+          ATMP: parseFloat(row.ATMP),
+          PRES: parseFloat(row.PRES),
+          WVHT: parseFloat(row.WVHT)
+        });
+      })
+      .on("end", () => {
+        historicalDataCache = results;
+        isParsing = false;
+        while(parsePromises.length) parsePromises.shift().resolve(historicalDataCache);
+      })
+      .on("error", (err) => {
+        isParsing = false;
+        while(parsePromises.length) parsePromises.shift().reject(err);
+      });
+  });
+}
+
+// Warm cache on start
+getHistoricalData().catch((err) => {
+  console.error("Error warming historical cache on startup:", err.message);
+});
+
+/* ============================================================
    1️⃣ LIVE FORECAST
 ============================================================ */
 app.get("/api/buoy", async (req, res) => {
@@ -76,29 +134,29 @@ app.get("/api/buoy", async (req, res) => {
 /* ============================================================
    2️⃣ HISTORICAL CSV
 ============================================================ */
-app.get("/api/buoy-historical", (req, res) => {
+app.get("/api/buoy-historical", async (req, res) => {
+  try {
+    const data = await getHistoricalData();
+    const yearQuery = req.query.year ? parseInt(req.query.year) : null;
 
-  const filePath = path.join(__dirname, "data", "46042_master_2012_2023.csv");
-
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: "Historical CSV not found" });
-  }
-
-  const results = [];
-
-  fs.createReadStream(filePath)
-    .pipe(csv())
-    .on("data", (row) => results.push(row))
-    .on("end", () => {
-      res.json({
-        count: results.length,
-        data: results
+    if (yearQuery) {
+      const filtered = data.filter((r) => r.year === yearQuery);
+      return res.json({
+        count: filtered.length,
+        year: yearQuery,
+        data: filtered
       });
-    })
-    .on("error", (err) => {
-      console.error("Historical CSV error:", err.message);
-      res.status(500).json({ error: "Failed to read historical CSV" });
+    }
+
+    console.warn("[API] buoy-historical requested without a year query parameter. Returning all records.");
+    res.json({
+      count: data.length,
+      data: data
     });
+  } catch (err) {
+    console.error("Historical API error:", err.message);
+    res.status(500).json({ error: err.message || "Failed to retrieve historical data" });
+  }
 });
 
 

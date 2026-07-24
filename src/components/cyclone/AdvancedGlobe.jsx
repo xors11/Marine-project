@@ -99,11 +99,11 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
             const globe = Globe()
                 .width(width)
                 .height(height)
-                .backgroundColor('#0a1628')
+                .backgroundColor('#020d18')
                 .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
                 .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
                 .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
-                .atmosphereColor('#00d4ff')
+                .atmosphereColor('var(--color-accent)')
                 .atmosphereAltitude(0.15)
                 .showAtmosphere(true)
                 // Arcs
@@ -113,7 +113,7 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
                 .arcDashLength(0.4)
                 .arcDashGap(0.2)
                 .arcDashAnimateTime(2000)
-                .arcLabel(d => `<div style="background:#1e293b;padding:6px 10px;border-radius:8px;border:1px solid #334155;color:#fff;font-size:12px">
+                .arcLabel(d => `<div style="background:rgba(2,13,24,0.95);padding:6px 10px;border-radius:8px;border:1px solid var(--color-abyss-800);color:var(--color-abyss-100);font-size:12px">
                     <b>${d.name !== 'UNNAMED' ? d.name : 'Unknown'}</b><br/>
                     ${d.season} — ${d.cat.label}
                 </div>`)
@@ -124,7 +124,7 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
                 .pointColor(d => d.color)
                 .pointRadius(d => d.radius)
                 .pointAltitude(0.01)
-                .pointLabel(d => `<div style="background:#1e293b;padding:6px 10px;border-radius:8px;border:1px solid #334155;color:#fff;font-size:12px">
+                .pointLabel(d => `<div style="background:rgba(2,13,24,0.95);padding:6px 10px;border-radius:8px;border:1px solid var(--color-abyss-800);color:var(--color-abyss-100);font-size:12px">
                     <b>${d.name !== 'UNNAMED' ? d.name : 'Storm'}</b> — ${d.season}<br/>
                     ${d.cat.label}
                 </div>`)
@@ -134,7 +134,7 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
                 })
                 // Rings (monitoring zone)
                 .ringsData([{ lat: 15, lng: 80 }])
-                .ringColor(() => 'rgba(0,212,255,0.3)')
+                .ringColor(() => 'rgba(45,212,191,0.3)')
                 .ringMaxRadius(5)
                 .ringPropagationSpeed(2)
                 .ringRepeatPeriod(1000)
@@ -142,14 +142,14 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
                 .htmlElementsData([])
                 .htmlElement(d => {
                     const el = document.createElement('div');
-                    const bColor = d.id === 'rama-23003' ? '#22d3ee' : d.id === 'north-indian' ? '#f97316' : '#a78bfa';
+                    const bColor = d.id === 'rama-23003' ? '#2dd4bf' : d.id === 'north-indian' ? '#f0a94e' : '#9d8cf5';
                     el.innerHTML = `
                         <div style="position: relative; width: 14px; height: 14px; cursor: pointer; z-index: 10;">
                             <div style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: ${bColor}; opacity: 0.6; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
                             <div style="position: absolute; top: 3px; left: 3px; width: 8px; height: 8px; border-radius: 50%; background: ${bColor};"></div>
-                            <div class="tooltip" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,0.95); padding: 8px 12px; border-radius: 8px; border: 1px solid #334155; color: #fff; font-size: 11px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                            <div class="tooltip" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(2,13,24,0.95); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--color-abyss-800); color: var(--color-abyss-100); font-size: 11px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                                 <b style="color:${bColor}; font-size: 12px; margin-bottom: 2px; display: block;">${d.name}</b>
-                                SST: <span style="color:#00e5ff">${d.sst?.toFixed(1) || '—'}°C</span> &nbsp;|&nbsp; Pres: <span style="color:#00e5ff">${d.pressure || '—'} mb</span>
+                                SST: <span style="color:var(--color-accent)">${d.sst?.toFixed(1) || '—'}°C</span> &nbsp;|&nbsp; Pres: <span style="color:var(--color-accent)">${d.pressure || '—'} mb</span>
                             </div>
                         </div>
                     `;
@@ -233,12 +233,12 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
     // ── WebGL Fallback ──
     if (globeFailed) {
         return (
-            <div className="relative bg-slate-900 rounded-xl border border-slate-700 overflow-hidden" style={{ height: '500px' }}>
-                <div className="flex items-center justify-center h-full text-slate-400">
+            <div className="relative card overflow-hidden" style={{ height: '500px' }}>
+                <div className="flex items-center justify-center h-full text-[var(--color-abyss-400)]">
                     <div className="text-center">
                         <div className="text-3xl mb-2">🌍</div>
                         <p>3D Globe unavailable — WebGL not supported</p>
-                        <p className="text-xs mt-1 text-slate-500">Use 2D Map mode instead</p>
+                        <p className="text-xs mt-1 text-[var(--color-abyss-400)]">Use 2D Map mode instead</p>
                     </div>
                 </div>
             </div>
@@ -246,19 +246,19 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
     }
 
     return (
-        <div className="relative rounded-xl border border-slate-700 overflow-hidden" style={{ height: '500px', background: '#0a1628' }}>
+        <div className="relative rounded-xl border border-[var(--color-abyss-800)] overflow-hidden" style={{ height: '500px', background: '#020d18' }}>
             {/* Camera Controls */}
             <div className="absolute top-3 left-3 z-10 flex gap-1.5 flex-wrap" style={{ maxWidth: '220px' }}>
-                <button onClick={flyToReset} className="bg-slate-900/80 hover:bg-slate-800 text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 transition-colors">
+                <button onClick={flyToReset} className="bg-[var(--color-abyss-950)] hover:bg-[var(--color-abyss-900)] text-[var(--color-abyss-100)] text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-abyss-800)] transition-colors">
                     🌐 Reset
                 </button>
-                <button onClick={flyToBayOfBengal} className="bg-slate-900/80 hover:bg-slate-800 text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 transition-colors">
+                <button onClick={flyToBayOfBengal} className="bg-[var(--color-abyss-950)] hover:bg-[var(--color-abyss-900)] text-[var(--color-abyss-100)] text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-abyss-800)] transition-colors">
                     Bay of Bengal
                 </button>
-                <button onClick={flyToArabianSea} className="bg-slate-900/80 hover:bg-slate-800 text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-600 transition-colors">
+                <button onClick={flyToArabianSea} className="bg-[var(--color-abyss-950)] hover:bg-[var(--color-abyss-900)] text-[var(--color-abyss-100)] text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-abyss-800)] transition-colors">
                     Arabian Sea
                 </button>
-                <button onClick={() => setShowSST(!showSST)} className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${showSST ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' : 'bg-slate-900/80 text-white border-slate-600 hover:bg-slate-800'}`}>
+                <button onClick={() => setShowSST(!showSST)} className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${showSST ? 'bg-[rgba(45,212,191,0.08)] text-[var(--color-accent)] border-[rgba(45,212,191,0.3)]' : 'bg-[var(--color-abyss-950)] text-[var(--color-abyss-100)] border-[var(--color-abyss-800)] hover:bg-[var(--color-abyss-900)]'}`}>
                     SST Layer
                 </button>
             </div>
@@ -266,8 +266,8 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
             {/* Active Threat Marker */}
             {riskScore > 60 && (
                 <div className="absolute top-3 right-3 z-10">
-                    <div className="bg-red-500/20 border border-red-500/40 rounded-lg px-3 py-1.5 animate-pulse">
-                        <span className="text-red-400 text-xs font-bold">⚠ ACTIVE THREAT</span>
+                    <div className="bg-[rgba(242,102,91,0.08)] border border-[rgba(242,102,91,0.3)] rounded-lg px-3 py-1.5 animate-pulse">
+                        <span className="text-[var(--color-danger)] text-xs font-bold">⚠ ACTIVE THREAT</span>
                     </div>
                 </div>
             )}
@@ -276,8 +276,8 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
             <div ref={globeContainerRef} style={{ width: '100%', height: '100%' }} />
 
             {/* Legend */}
-            <div className="absolute bottom-4 left-4 z-10 bg-slate-900/80 rounded-lg p-3 border border-slate-700">
-                <div className="text-white text-xs font-bold mb-2 uppercase tracking-wider">Cyclone Intensity</div>
+            <div className="absolute bottom-4 left-4 z-10 bg-[var(--color-abyss-950)]/90 rounded-lg p-3 border border-[var(--color-abyss-800)]">
+                <div className="text-[var(--color-abyss-100)] text-xs font-bold mb-2 uppercase tracking-wider">Cyclone Intensity</div>
                 {[
                     { label: 'Tropical Storm', color: '#3b82f6' },
                     { label: 'Category 1', color: '#facc15' },
@@ -288,14 +288,14 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
                 ].map(item => (
                     <div key={item.label} className="flex items-center gap-2 mt-1">
                         <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
-                        <span className="text-slate-300 text-xs">{item.label}</span>
+                        <span className="text-[var(--color-abyss-300)] text-xs">{item.label}</span>
                     </div>
                 ))}
             </div>
 
             {/* Storm Info Side Panel */}
             <div
-                className="absolute top-0 right-0 h-full bg-slate-900 border-l border-cyan-400/30 p-4 z-20 transition-transform duration-300"
+                className="absolute top-0 right-0 h-full bg-[var(--color-abyss-950)] border-l border-[var(--color-abyss-800)] p-4 z-20 transition-transform duration-300"
                 style={{
                     width: '220px',
                     transform: selectedStorm ? 'translateX(0)' : 'translateX(100%)',
@@ -303,30 +303,30 @@ export default function AdvancedGlobe({ currentYear, riskScore, isPlaying, setSp
             >
                 {selectedStorm && (
                     <>
-                        <button onClick={() => setSelectedStorm(null)} className="absolute top-2 right-2 text-slate-400 hover:text-white text-lg">✕</button>
+                        <button onClick={() => setSelectedStorm(null)} className="absolute top-2 right-2 text-[var(--color-abyss-400)] hover:text-white text-lg">✕</button>
                         <div className="mt-6">
-                            <div className="text-white text-lg font-bold">{selectedStorm.name !== 'UNNAMED' ? selectedStorm.name : 'Unknown Storm'}</div>
-                            <div className="text-slate-400 text-sm mt-1">Season {selectedStorm.season}</div>
+                            <div className="text-[var(--color-abyss-100)] text-lg font-bold">{selectedStorm.name !== 'UNNAMED' ? selectedStorm.name : 'Unknown Storm'}</div>
+                            <div className="text-[var(--color-abyss-400)] text-sm mt-1">Season {selectedStorm.season}</div>
                             <div className="mt-3 inline-block px-3 py-1 rounded-full text-xs font-semibold border" style={{ color: selectedStorm.cat.color, borderColor: selectedStorm.cat.color }}>
                                 {selectedStorm.cat.label}
                             </div>
                             <div className="mt-4 space-y-2 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-slate-400">Max Wind</span>
-                                    <span className="text-white font-semibold">{selectedStorm.maxWind} km/h</span>
+                                    <span className="text-[var(--color-abyss-400)]">Max Wind</span>
+                                    <span className="text-[var(--color-abyss-100)] font-semibold">{selectedStorm.maxWind} km/h</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-slate-400">Min Pressure</span>
-                                    <span className="text-white font-semibold">{selectedStorm.minPressure} mb</span>
+                                    <span className="text-[var(--color-abyss-400)]">Min Pressure</span>
+                                    <span className="text-[var(--color-abyss-100)] font-semibold">{selectedStorm.minPressure} mb</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-slate-400">Track Points</span>
-                                    <span className="text-white font-semibold">{selectedStorm.trackCount}</span>
+                                    <span className="text-[var(--color-abyss-400)]">Track Points</span>
+                                    <span className="text-[var(--color-abyss-100)] font-semibold">{selectedStorm.trackCount}</span>
                                 </div>
                             </div>
                             <button
                                 onClick={() => flyToStorm(selectedStorm.midLat, selectedStorm.midLng)}
-                                className="mt-4 w-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs py-2 rounded-lg hover:bg-cyan-500/20 transition-colors"
+                                className="mt-4 w-full bg-[rgba(45,212,191,0.08)] border border-[rgba(45,212,191,0.3)] text-[var(--color-accent)] text-xs py-2 rounded-lg hover:bg-[rgba(45,212,191,0.15)] transition-colors"
                             >
                                 🎯 Focus on Storm
                             </button>

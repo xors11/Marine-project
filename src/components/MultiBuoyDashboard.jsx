@@ -2,9 +2,9 @@ import React from 'react';
 import { ComposedChart, Line, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
 const BUOY_COLORS = {
-    'rama-23003': '#22d3ee', // cyan
-    'north-indian': '#f97316', // orange
-    'bay-of-bengal': '#a78bfa' // violet
+    'rama-23003': 'var(--color-accent)', // cyan/teal
+    'north-indian': 'var(--color-temp)', // warm orange
+    'bay-of-bengal': 'var(--color-violet)' // violet
 };
 
 export default function MultiBuoyDashboard({ buoyData, buoys, timeWindow }) {
@@ -45,67 +45,67 @@ export default function MultiBuoyDashboard({ buoyData, buoys, timeWindow }) {
     };
 
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-[var(--space-4)]">
             {/* Anomaly Banners */}
             {currentData.length > 1 && sstDiff > 2 && (
-                <div className="bg-amber-950 text-amber-400 border border-amber-800 p-3 rounded-lg text-sm font-semibold">
+                <div style={{ background: 'rgba(240, 169, 78, 0.08)', border: '1px solid rgba(240, 169, 78, 0.2)', color: 'var(--color-amber)' }} className="p-3 rounded-lg text-sm font-semibold">
                     SST gradient detected: {hottestBuoy?.name} is {sstDiff.toFixed(1)}°C warmer than {coolestBuoy?.name}
                 </div>
             )}
             {currentData.length > 1 && pressDiff > 5 && (
-                <div className="bg-red-950 text-red-400 border border-red-800 p-3 rounded-lg text-sm font-semibold">
+                <div style={{ background: 'rgba(242, 102, 91, 0.08)', border: '1px solid rgba(242, 102, 91, 0.2)', color: 'var(--color-danger)' }} className="p-3 rounded-lg text-sm font-semibold">
                     Pressure gradient: {pressDiff.toFixed(1)} hPa across region. Elevated circulation risk.
                 </div>
             )}
             {currentData.length > 0 && maxWind > 15 && (
-                <div className="bg-orange-950 text-orange-400 border border-orange-800 p-3 rounded-lg text-sm font-semibold">
+                <div style={{ background: 'rgba(232, 147, 90, 0.08)', border: '1px solid rgba(232, 147, 90, 0.2)', color: 'var(--color-temp)' }} className="p-3 rounded-lg text-sm font-semibold">
                     Strong winds at {windiest?.name}: {maxWind.toFixed(1)} m/s
                 </div>
             )}
 
             {/* 3-Column Dashboard */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                 {buoys.map(b => {
                     const rowData = currentData.find(d => d.id === b.id) || {};
                     const hist = filterHistoryByTimeWindow(buoyData[b.id]?.history, timeWindow);
-                    const color = BUOY_COLORS[b.id] || '#4db8e8';
+                    const color = BUOY_COLORS[b.id] || 'var(--color-accent)';
 
                     return (
-                        <div key={b.id} className="bg-slate-900 border border-slate-700 rounded-xl p-4" style={{ borderTop: `4px solid ${color}` }}>
+                        <div key={b.id} className="card" style={{ borderTop: `4px solid ${color}` }}>
                             {/* Column Header */}
-                            <div className="flex justify-between items-start mb-4">
+                            <div className="flex justify-between items-start mb-[var(--space-4)]">
                                 <div>
-                                    <div className="font-bold text-slate-200">{b.name}</div>
-                                    <div className="text-[10px] text-slate-400 border border-slate-700 bg-slate-800/50 px-2 py-0.5 rounded mt-1 inline-block">
+                                    <div className="font-bold text-[var(--color-abyss-100)]">{b.name}</div>
+                                    <div style={{ background: 'rgba(36, 144, 204, 0.08)', border: '1px solid rgba(36, 144, 204, 0.15)', color: 'var(--color-abyss-300)' }} className="text-[10px] px-2 py-0.5 rounded mt-1 inline-block">
                                         {b.region}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Mini Stats */}
-                            <div className="grid grid-cols-3 gap-2 mb-6">
+                            <div className="grid grid-cols-3 gap-[var(--space-2)] mb-[var(--space-6)]">
                                 <div className="text-center">
-                                    <div className="text-[10px] text-slate-500">SST</div>
-                                    <div className="text-sm font-bold" style={{ color: rowData.sst > 28 ? '#f97316' : color }}>
+                                    <div className="text-[10px] text-[var(--color-abyss-400)]">SST</div>
+                                    <div className="text-sm font-bold data-value" style={{ color: rowData.sst > 28 ? 'var(--color-temp)' : color }}>
                                         {rowData.sst ? `${rowData.sst.toFixed(1)}°C` : '—'}
                                     </div>
                                 </div>
-                                <div className="text-center border-l border-slate-800">
-                                    <div className="text-[10px] text-slate-500">WIND</div>
-                                    <div className="text-sm font-bold" style={{ color: rowData.wind > 15 ? '#f97316' : color }}>
+                                <div className="text-center border-l border-[var(--color-abyss-800)]">
+                                    <div className="text-[10px] text-[var(--color-abyss-400)]">WIND</div>
+                                    <div className="text-sm font-bold data-value" style={{ color: rowData.wind > 15 ? 'var(--color-temp)' : color }}>
                                         {rowData.wind ? `${rowData.wind.toFixed(1)} m/s` : '—'}
                                     </div>
                                 </div>
-                                <div className="text-center border-l border-slate-800">
-                                    <div className="text-[10px] text-slate-500">PRES</div>
-                                    <div className="text-sm font-bold" style={{ color: rowData.pressure < 1005 ? '#ef4444' : color }}>
+                                <div className="text-center border-l border-[var(--color-abyss-800)]">
+                                    <div className="text-[10px] text-[var(--color-abyss-400)]">PRES</div>
+                                    <div className="text-sm font-bold data-value" style={{ color: rowData.pressure < 1005 ? 'var(--color-danger)' : color }}>
                                         {rowData.pressure ? `${rowData.pressure.toFixed(0)} hPa` : '—'}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Mini Charts */}
-                            <div className="space-y-4">
+                            <div className="space-y-[var(--space-4)]">
                                 <MiniChart title="Sea Surface Temp (°C)" data={hist} dataKey="sea_surface_temp" color={color} domain={['dataMin - 0.5', 'dataMax + 0.5']} />
                                 <MiniChart title="Wind Speed (m/s)" data={hist} dataKey="wind_speed" color={color} domain={['auto', 'auto']} />
                                 <MiniChart title="Air Pressure (hPa)" data={hist} dataKey="air_pressure" color={color} domain={['dataMin - 1', 'dataMax + 1']} />
@@ -122,8 +122,8 @@ function MiniChart({ title, data, dataKey, color, domain }) {
     if (!data || data.length === 0) return null;
     return (
         <div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">{title}</div>
-            <div className="h-20 w-full bg-slate-800/30 rounded p-1 border border-slate-700/50" style={{ minWidth: 0, minHeight: 0 }}>
+            <div className="text-[10px] text-[var(--color-abyss-400)] uppercase tracking-widest mb-1">{title}</div>
+            <div className="h-20 w-full rounded p-1" style={{ background: 'var(--color-abyss-950)', border: '1px solid var(--color-abyss-800)', minWidth: 0, minHeight: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={data}>
                         <XAxis dataKey="label" hide />

@@ -6,34 +6,49 @@ import {
 import { computeStats, computeMovingAverage, isAnomaly, zScore, classifyAnomaly } from '../utils/anomaly';
 
 const HIST_PARAMS = [
-    { key: 'WTMP', label: 'Water Temperature', unit: '°C', color: '#f97316', areaFill: '#f9731610' },
-    { key: 'WSPD', label: 'Wind Speed', unit: 'm/s', color: '#22d3ee', areaFill: '#22d3ee08' },
-    { key: 'WVHT', label: 'Wave Height', unit: 'm', color: '#4ade80', areaFill: '#4ade8008' },
-    { key: 'PRES', label: 'Air Pressure', unit: 'hPa', color: '#a78bfa', areaFill: '#a78bfa08' },
+    { key: 'WTMP', label: 'Water Temperature', unit: '°C' },
+    { key: 'WSPD', label: 'Wind Speed', unit: 'm/s' },
+    { key: 'WVHT', label: 'Wave Height', unit: 'm' },
+    { key: 'PRES', label: 'Air Pressure', unit: 'hPa' },
 ];
 
 export { HIST_PARAMS };
 
-const GRID_STYLE = { strokeDasharray: '3 3', stroke: 'rgba(36,144,204,0.1)', vertical: false };
-const XAXIS_STYLE = { fill: '#4db8e8', fontSize: 9 };
-const XAXIS_LINE = { stroke: 'rgba(36,144,204,0.2)' };
-const YAXIS_STYLE = { fill: '#4db8e8', fontSize: 10 };
+const getParamThemeColor = (key) => {
+    switch (key) {
+        case 'WTMP':
+            return 'var(--color-temp)';
+        case 'WSPD':
+            return 'var(--color-accent)';
+        case 'WVHT':
+            return 'var(--color-green)';
+        case 'PRES':
+            return 'var(--color-violet)';
+        default:
+            return 'var(--color-accent)';
+    }
+};
+
+const GRID_STYLE = { strokeDasharray: '3 3', stroke: 'var(--color-abyss-800)', vertical: false };
+const XAXIS_STYLE = { fill: 'var(--color-abyss-300)', fontSize: 9 };
+const XAXIS_LINE = { stroke: 'var(--color-abyss-800)' };
+const YAXIS_STYLE = { fill: 'var(--color-abyss-300)', fontSize: 10 };
 const ACTIVE_DOT = { r: 5, stroke: '#fff', strokeWidth: 1 };
 
 function HistTooltip({ active, payload, label, unit }) {
     if (!active || !payload?.length) return null;
     return (
         <div style={{
-            background: '#0a1628',
-            border: '1px solid #22d3ee',
+            background: 'var(--color-card)',
+            border: '1px solid var(--color-accent)',
             borderRadius: '12px',
-            padding: '12px 16px',
+            padding: 'var(--space-3) var(--space-4)',
             fontSize: '0.85rem',
             backdropFilter: 'blur(12px)',
             minWidth: 220,
             boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
         }}>
-            <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>{label}</div>
+            <div style={{ color: 'var(--color-abyss-300)', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>{label}</div>
             {payload.map((entry, idx) => {
                 let name = entry.name;
                 if (entry.dataKey?.includes('_rama-23003')) name = 'RAMA 23003';
@@ -42,28 +57,30 @@ function HistTooltip({ active, payload, label, unit }) {
 
                 const isMA = entry.dataKey?.endsWith('_ma');
                 const isCompare = entry.dataKey?.startsWith('compare_');
+                const cleanKey = entry.dataKey?.replace('_rama-23003', '').replace('_north-indian', '').replace('_bay-of-bengal', '').replace('_ma', '').replace('compare_', '');
+                const themeColor = getParamThemeColor(cleanKey);
 
                 return (
                     <div
                         key={`${entry.dataKey}_${idx}`}
-                        style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: entry.color, marginBottom: 3 }}
+                        style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: themeColor, marginBottom: 3 }}
                     >
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             {name}
                             {isMA && (
                                 <span style={{
-                                    background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)',
-                                    borderRadius: 4, padding: '0 4px', fontSize: '0.58rem', color: '#22d3ee',
+                                    background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.2)',
+                                    borderRadius: 4, padding: '0 4px', fontSize: '0.58rem', color: 'var(--color-accent)',
                                 }}>24h trend</span>
                             )}
                             {isCompare && (
                                 <span style={{
-                                    background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)',
-                                    borderRadius: 4, padding: '0 4px', fontSize: '0.58rem', color: '#a855f7',
+                                    background: 'rgba(157,140,245,0.08)', border: '1px solid rgba(157,140,245,0.2)',
+                                    borderRadius: 4, padding: '0 4px', fontSize: '0.58rem', color: 'var(--color-violet)',
                                 }}>compare</span>
                             )}
                         </span>
-                        <span style={{ fontWeight: 700, fontSize: '1rem', color: entry.color === 'rgba(255,255,255,0.4)' ? '#e2e8f0' : entry.color }}>
+                        <span className="data-value" style={{ fontWeight: 700, fontSize: '1rem', color: entry.color === 'rgba(255,255,255,0.4)' ? 'var(--color-abyss-300)' : themeColor }}>
                             {entry.value != null ? `${Number(entry.value).toFixed(2)} ${unit}` : '—'}
                         </span>
                     </div>
@@ -71,9 +88,9 @@ function HistTooltip({ active, payload, label, unit }) {
             })}
             {payload.some(e => e.payload?._isAnomaly?.[e.dataKey]) && (
                 <div style={{
-                    background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)',
+                    background: 'rgba(242, 102, 91, 0.08)', border: '1px solid rgba(242, 102, 91, 0.2)',
                     borderRadius: 4, padding: '2px 6px', marginTop: 6,
-                    fontSize: '0.65rem', color: '#f87171', fontWeight: 700, textAlign: 'center',
+                    fontSize: '0.65rem', color: 'var(--color-danger)', fontWeight: 700, textAlign: 'center',
                 }}>
                     ⚠ Extreme Anomaly
                 </div>
@@ -92,7 +109,7 @@ function AnomalyDot(props) {
     // Adjusted sizes
     const outerR = cls === 'extreme' ? 3 : 2.5;
     const innerR = cls === 'extreme' ? 1.5 : 1.2;
-    const color = cls === 'extreme' ? '#f87171' : '#fb923c';
+    const color = cls === 'extreme' ? 'var(--color-danger)' : 'var(--color-amber)';
 
     return (
         <g>
@@ -102,31 +119,32 @@ function AnomalyDot(props) {
     );
 }
 
+// ─── Anomaly badge for chart header ──────────────────────────────────────────
 function AnomalyBadge({ s }) {
     if (!s || s.anomalyCount === 0) return null;
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
             <div style={{
                 display: 'flex', alignItems: 'center', gap: 5,
-                background: 'rgba(255,77,109,0.12)', border: '1px solid rgba(255,77,109,0.3)',
+                background: 'rgba(242, 102, 91, 0.08)', border: '1px solid rgba(242, 102, 91, 0.2)',
                 borderRadius: 99, padding: '0.2rem 0.6rem',
-                fontSize: '0.68rem', color: '#ff4d6d', fontWeight: 700,
+                fontSize: '0.68rem', color: 'var(--color-danger)', fontWeight: 700,
             }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff4d6d', display: 'inline-block' }} />
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-danger)', display: 'inline-block' }} />
                 {s.anomalyCount} anomal{s.anomalyCount === 1 ? 'y' : 'ies'}
             </div>
             {s.moderateCount > 0 && (
                 <div style={{
-                    background: 'rgba(251,146,60,0.10)', border: '1px solid rgba(251,146,60,0.28)',
+                    background: 'rgba(240, 169, 78, 0.08)', border: '1px solid rgba(240, 169, 78, 0.2)',
                     borderRadius: 99, padding: '0.2rem 0.5rem',
-                    fontSize: '0.65rem', color: '#fb923c', fontWeight: 700,
+                    fontSize: '0.65rem', color: 'var(--color-amber)', fontWeight: 700,
                 }}>{s.moderateCount} mod</div>
             )}
             {s.extremeCount > 0 && (
                 <div style={{
-                    background: 'rgba(239,68,68,0.10)', border: '1px solid rgba(239,68,68,0.28)',
+                    background: 'rgba(242, 102, 91, 0.08)', border: '1px solid rgba(242, 102, 91, 0.2)',
                     borderRadius: 99, padding: '0.2rem 0.5rem',
-                    fontSize: '0.65rem', color: '#ef4444', fontWeight: 700,
+                    fontSize: '0.65rem', color: 'var(--color-danger)', fontWeight: 700,
                 }}>{s.extremeCount} extreme</div>
             )}
         </div>
@@ -135,6 +153,7 @@ function AnomalyBadge({ s }) {
 
 const HistParamChart = memo(function HistParamChart({ param, chartData, stats, showMovingAverage, compareData, compareYear, locationId = 'rama-23003' }) {
     const s = stats[param.key];
+    const themeColor = getParamThemeColor(param.key);
     const ALL_BUOYS = ['rama-23003', 'north-indian', 'bay-of-bengal'];
     const OTHER_BUOYS = ALL_BUOYS.filter(id => id !== locationId);
 
@@ -144,8 +163,8 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
     );
 
     const activeDot = useMemo(
-        () => ({ ...ACTIVE_DOT, fill: param.color }),
-        [param.color]
+        () => ({ ...ACTIVE_DOT, fill: themeColor }),
+        [themeColor]
     );
 
     const primaryKey = `${param.key}_${locationId}`;
@@ -204,32 +223,27 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
     }, [chartData, param.key, s]);
 
     return (
-        <div className="overflow-hidden" style={{
-            background: 'rgba(6,14,30,.75)',
-            border: '1px solid rgba(51,65,85,.38)',
-            borderRadius: '12px',
-            padding: window.innerWidth < 768 ? '12px 10px' : '16px 18px'
-        }}>
+        <div className="card overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                     <span style={{
-                        width: 7, height: 7, borderRadius: '50%', // Replaced 8px to 7px
-                        background: param.color, display: 'inline-block', flexShrink: 0,
+                        width: 7, height: 7, borderRadius: '50%',
+                        background: themeColor, display: 'inline-block', flexShrink: 0,
                     }} />
-                    <div style={{ width: 3, height: 18, borderRadius: 2, background: param.color }} />
-                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: param.color }}>
+                    <div style={{ width: 3, height: 18, borderRadius: 2, background: themeColor }} />
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: themeColor }}>
                         {param.label}
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: '#4db8e8', opacity: 0.7 }}>({param.unit})</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--color-abyss-300)', opacity: 0.7 }}>({param.unit})</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <AnomalyBadge s={s} />
                     <span style={{
-                        background: 'rgba(36,144,204,0.10)',
-                        border: '1px solid rgba(36,144,204,0.2)',
+                        background: 'rgba(36,144,204,0.08)',
+                        border: '1px solid rgba(36,144,204,0.15)',
                         borderRadius: 99, padding: '0.2rem 0.6rem',
-                        fontSize: '0.68rem', color: '#4db8e8',
+                        fontSize: '0.68rem', color: 'var(--color-abyss-300)',
                     }}>
                         {validCount} pts
                     </span>
@@ -237,16 +251,15 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
             </div>
 
             {/* Compare legend */}
-            {/* Compare legend */}
             {compareYear && (
                 <div className="flex flex-col md:flex-row" style={{ gap: 12, marginBottom: 8, fontSize: '0.7rem' }}>
                     <span className="w-full md:w-auto" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 16, height: 2, background: param.color, display: 'inline-block' }} />
-                        <span style={{ color: '#94a3b8' }}>Selected year</span>
+                        <span style={{ width: 16, height: 2, background: themeColor, display: 'inline-block' }} />
+                        <span style={{ color: 'var(--color-abyss-300)' }}>Selected year</span>
                     </span>
                     <span className="w-full md:w-auto" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span style={{ width: 16, height: 2, background: param.color, opacity: 0.4, display: 'inline-block', borderTop: '1px dashed' }} />
-                        <span style={{ color: '#94a3b8' }}>Compare ({compareYear})</span>
+                        <span style={{ width: 16, height: 2, background: themeColor, opacity: 0.4, display: 'inline-block', borderTop: '1px dashed' }} />
+                        <span style={{ color: 'var(--color-abyss-300)' }}>Compare ({compareYear})</span>
                     </span>
                 </div>
             )}
@@ -274,7 +287,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         <ReferenceLine
                             key={`ref-${i}`}
                             x={x}
-                            stroke="#f87171"
+                            stroke="var(--color-danger)"
                             strokeWidth={1}
                             strokeDasharray="3 2"
                             strokeOpacity={0.6}
@@ -286,7 +299,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                             key={`cross-${i}`}
                             x1={r.start}
                             x2={r.end}
-                            fill="#f87171"
+                            fill="var(--color-danger)"
                             fillOpacity={0.15}
                         />
                     ))}
@@ -296,7 +309,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                             key={bId}
                             type="monotone"
                             dataKey={`${param.key}_${bId}`}
-                            stroke="rgba(255,255,255,0.4)"
+                            stroke="var(--color-abyss-600)"
                             strokeWidth={1}
                             strokeDasharray="5 5"
                             dot={false}
@@ -307,7 +320,8 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                     <Area
                         type="monotone"
                         dataKey={primaryKey}
-                        fill={param.areaFill}
+                        fill={themeColor}
+                        fillOpacity={0.12}
                         stroke="none"
                         isAnimationActive={false}
                     />
@@ -316,7 +330,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                         type="monotone"
                         dataKey={primaryKey}
                         name={param.label}
-                        stroke={param.color}
+                        stroke={themeColor}
                         strokeWidth={2}
                         dot={(dotProps) => (
                             <AnomalyDot
@@ -337,7 +351,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                             type="monotone"
                             dataKey={compareKey}
                             name={`${param.label} (${compareYear})`}
-                            stroke={param.color}
+                            stroke={themeColor}
                             strokeWidth={1.5}
                             strokeOpacity={0.4}
                             strokeDasharray="6 3"
@@ -353,7 +367,7 @@ const HistParamChart = memo(function HistParamChart({ param, chartData, stats, s
                             type="monotone"
                             dataKey={maKey}
                             name="24h MA"
-                            stroke={param.color}
+                            stroke={themeColor}
                             strokeWidth={1.5}
                             strokeOpacity={0.45}
                             strokeDasharray="6 3"
@@ -414,7 +428,7 @@ const HistoricalChart = memo(function HistoricalChart({ data, showMovingAverage 
 
     if (!data.length) {
         return (
-            <div className="glass-card flex items-center justify-center" style={{ height: 300, color: '#4db8e8' }}>
+            <div className="card flex items-center justify-center" style={{ height: 300, color: 'var(--color-abyss-300)' }}>
                 No historical data for this year — try another year.
             </div>
         );

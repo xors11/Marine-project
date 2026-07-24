@@ -163,10 +163,11 @@ export async function fetchCycloneRisk(lat = 15, lon = 85, cycloneSummaryData = 
  * Tries a local backend first; if unavailable, fetches directly from
  * Open-Meteo archive API so the app works with NO backend at all.
  */
-export async function fetchHistoricalBuoyData(lat = -2, lon = 81) {
+export async function fetchHistoricalBuoyData(year, lat = -2, lon = 81) {
     // 1️⃣ Try local backend first (if running)
     try {
-        const res = await fetch('/api/buoy-historical', { signal: AbortSignal.timeout(3000) });
+        const url = year ? `/api/buoy-historical?year=${year}` : '/api/buoy-historical';
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
         if (res.ok) {
             const json = await res.json();
             if (Array.isArray(json?.data)) return json.data;
@@ -178,8 +179,12 @@ export async function fetchHistoricalBuoyData(lat = -2, lon = 81) {
     }
 
     // 2️⃣ Fallback: Open-Meteo archive API (free, no backend needed)
-    const startDate = '2012-01-01';
-    const endDate = new Date().toISOString().slice(0, 10);
+    const currentYear = new Date().getFullYear();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const startDate = year ? `${year}-01-01` : '2012-01-01';
+    const endDate = year
+        ? (year < currentYear ? `${year}-12-31` : todayStr)
+        : todayStr;
 
     const archiveUrl =
         `https://archive-api.open-meteo.com/v1/archive` +

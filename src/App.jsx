@@ -318,22 +318,45 @@ export default function App() {
         useHistoricalBuoyData();
 
     useEffect(() => {
-        if (isHistorical && !hasLoaded && !histLoading) loadHistorical();
-    }, [isHistorical, hasLoaded, histLoading, loadHistorical]);
+        if (isHistorical) {
+            loadHistorical(selectedYear);
+            if (compareYear) {
+                loadHistorical(compareYear);
+            }
+        }
+    }, [isHistorical, selectedYear, compareYear, loadHistorical]);
 
     const stats = useMemo(() => OceanChart.computeStats(data, activeParams), [data, activeParams]);
 
     const filteredHistorical = useMemo(() => {
         let yearRows = histAllData.filter(r => r.year === selectedYear);
-        if (selectedMonth > 0) yearRows = yearRows.filter(r => r.timestamp instanceof Date && r.timestamp.getMonth() === selectedMonth - 1);
-        return yearRows.length > MAX_RENDER_ROWS ? yearRows.slice(yearRows.length - MAX_RENDER_ROWS) : yearRows;
+        if (selectedMonth > 0) {
+            yearRows = yearRows.filter(r => r.timestamp instanceof Date && r.timestamp.getMonth() === selectedMonth - 1);
+        }
+        
+        // Adaptive downsampling:
+        // If we have more than 1000 records (e.g., a whole year of hourly data),
+        // downsample to approx 500 points to keep rendering fast and prevent truncation.
+        if (yearRows.length > 1000) {
+            const factor = Math.ceil(yearRows.length / 500);
+            yearRows = yearRows.filter((_, i) => i % factor === 0);
+        }
+        return yearRows;
     }, [histAllData, selectedYear, selectedMonth]);
 
     const compareData = useMemo(() => {
         if (!compareYear) return null;
         let rows = histAllData.filter(r => r.year === compareYear);
-        if (selectedMonth > 0) rows = rows.filter(r => r.timestamp instanceof Date && r.timestamp.getMonth() === selectedMonth - 1);
-        return rows.length > MAX_RENDER_ROWS ? rows.slice(rows.length - MAX_RENDER_ROWS) : rows;
+        if (selectedMonth > 0) {
+            rows = rows.filter(r => r.timestamp instanceof Date && r.timestamp.getMonth() === selectedMonth - 1);
+        }
+        
+        // Adaptive downsampling for comparison dataset
+        if (rows.length > 1000) {
+            const factor = Math.ceil(rows.length / 500);
+            rows = rows.filter((_, i) => i % factor === 0);
+        }
+        return rows;
     }, [histAllData, compareYear, selectedMonth]);
 
     const histStats = useMemo(() => {

@@ -213,9 +213,9 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
   if (loading) return <LoadingSpinner message="Parsing Fishery Telemetry..." />;
   if (error) {
     return (
-      <div className="bg-[#0a1628] rounded-xl p-12 text-center flex flex-col items-center border border-slate-800">
-        <h2 className="text-red-400 font-bold mb-2">Data Engine Failure</h2>
-        <p className="text-slate-400">{error}</p>
+      <div style={{ background: 'var(--color-card)', border: '1px solid var(--color-abyss-800)' }} className="rounded-xl p-12 text-center flex flex-col items-center">
+        <h2 style={{ color: 'var(--color-danger)' }} className="font-bold mb-2">Data Engine Failure</h2>
+        <p className="text-[var(--color-abyss-300)]">{error}</p>
       </div>
     );
   }
@@ -242,7 +242,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
   return (
     <div
       ref={fisheriesRef}
-      className="flex flex-col animate-in fade-in duration-700 bg-[#060f1e] text-slate-200 p-3 md:p-6 -m-3 md:-m-8 pb-20 md:pb-6"
+      className="flex flex-col animate-in fade-in duration-700 bg-[var(--color-abyss-950)] text-slate-200 p-[var(--space-3)] md:p-[var(--space-6)] -m-3 md:-m-8 pb-20 md:pb-6"
       style={{ minHeight: '100vh' }}
     >
       <style dangerouslySetInnerHTML={{ __html: `@keyframes zpulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.4; transform:scale(1.4)} }` }} />
@@ -266,23 +266,23 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       {/* STEP 6: CONDITIONAL BANNERS */}
       {isSimulating && (
         <div style={{
-          borderLeft: '2px solid #22d3ee',
-          background: 'rgba(34,211,238,0.06)',
-          border: '0.5px solid rgba(34,211,238,0.18)',
+          borderLeft: '2px solid var(--color-accent)',
+          background: 'rgba(45, 212, 191, 0.06)',
+          border: '0.5px solid rgba(45, 212, 191, 0.18)',
           borderLeftWidth: 2,
           borderRadius: 7,
           padding: '8px 14px',
           marginBottom: 10,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+          display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          <span style={{ fontSize: 11, color: '#22d3ee' }}>
+          <span style={{ fontSize: 11, color: 'var(--color-accent)' }}>
             <strong>SIMULATION ACTIVE</strong> — 10% fishing reduction applied. Total catch: {originalTotal.toLocaleString()}t → {simulatedTotal.toLocaleString()}t ({improvingCount} species recovering)
           </span>
           <button
             onClick={() => setIsSimulating(false)}
             style={{
-              background: 'rgba(34,211,238,0.08)', border: '0.5px solid rgba(34,211,238,0.3)',
-              color: '#22d3ee', fontSize: 10, fontWeight: 700, padding: '3px 10px',
+              background: 'rgba(45, 212, 191, 0.08)', border: '0.5px solid rgba(45, 212, 191, 0.3)',
+              color: 'var(--color-accent)', fontSize: 10, fontWeight: 700, padding: '3px 10px',
               borderRadius: 6, cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
             }}
           >
@@ -293,14 +293,14 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
 
       {sstScenario === 'low' && (
         <div style={{
-          borderLeft: '2px solid #60a5fa',
-          background: 'rgba(96,165,250,0.06)',
-          border: '0.5px solid rgba(96,165,250,0.2)',
+          borderLeft: '2px solid var(--color-violet)',
+          background: 'rgba(157, 140, 245, 0.06)',
+          border: '0.5px solid rgba(157, 140, 245, 0.2)',
           borderLeftWidth: 2,
           borderRadius: 7,
           padding: '8px 14px',
           marginBottom: 10,
-          fontSize: 11, color: '#93c5fd',
+          fontSize: 11, color: 'var(--color-violet)',
           lineHeight: 1.5,
         }}>
           <strong>SST SCENARIO: {currentRegionalSST.toFixed(1)}°C (Regional Avg).</strong> Coral species under thermal stress. Warm-water species slightly benefited.
@@ -309,14 +309,14 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
 
       {sstScenario === 'high' && (
         <div style={{
-          borderLeft: '2px solid #f87171',
-          background: 'rgba(248,113,113,0.06)',
-          border: '0.5px solid rgba(248,113,113,0.2)',
+          borderLeft: '2px solid var(--color-danger)',
+          background: 'rgba(242, 102, 91, 0.06)',
+          border: '0.5px solid rgba(242, 102, 91, 0.2)',
           borderLeftWidth: 2,
           borderRadius: 7,
           padding: '8px 14px',
           marginBottom: 10,
-          fontSize: 11, color: '#fca5a5',
+          fontSize: 11, color: 'var(--color-danger)',
           lineHeight: 1.5,
         }}>
           <strong>SST SCENARIO: {currentRegionalSST.toFixed(1)}°C (Regional Max +1°C).</strong> Thermal stress detected across {affectedCount} species. Coral bleaching risk elevated.
@@ -324,79 +324,83 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       )}
 
       {showAlertSettings && (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-4 mb-4 relative animate-in slide-in-from-top-4 duration-300">
-          <div className="flex justify-between items-center mb-4">
+        <div className="card relative animate-in slide-in-from-top-4 duration-300 mb-[var(--space-4)]">
+          <div className="flex justify-between items-center mb-[var(--space-4)]">
             <h3 className="text-sm font-semibold text-white">Alert Settings</h3>
-            <button onClick={() => setShowAlertSettings(false)} className="text-slate-500 hover:text-white cursor-pointer px-2">✕</button>
+            <button onClick={() => setShowAlertSettings(false)} className="text-[var(--color-abyss-400)] hover:text-white cursor-pointer px-2">✕</button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--space-8)]">
             {/* Section A */}
             <div>
-              <div className="text-xs text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Alert Thresholds</div>
+              <div className="text-xs text-[var(--color-abyss-400)] uppercase tracking-wider mb-4 border-b border-[var(--color-abyss-800)] pb-2">Alert Thresholds</div>
 
               <div className="mb-4">
-                <div className="text-xs text-slate-300 flex justify-between mb-1">
+                <div className="text-xs text-[var(--color-abyss-200)] flex justify-between mb-1">
                   <span>Critical health threshold</span>
-                  <span className="font-bold text-cyan-400">{critThreshold}%</span>
+                  <span className="font-bold text-[var(--color-accent)]">{critThreshold}%</span>
                 </div>
-                <input type="range" min="10" max="60" step="1" value={critThreshold} onChange={(e) => setCritThreshold(Number(e.target.value))} className="w-full accent-cyan-400" />
-                <div className="text-xs text-slate-600 mt-1">Species below {critThreshold}% trigger CRITICAL</div>
+                <input type="range" min="10" max="60" step="1" value={critThreshold} onChange={(e) => setCritThreshold(Number(e.target.value))} className="w-full accent-[var(--color-accent)]" />
+                <div className="text-xs text-[var(--color-abyss-500)] mt-1">Species below {critThreshold}% trigger CRITICAL</div>
               </div>
 
               <div className="mb-4">
-                <div className="text-xs text-slate-300 flex justify-between mb-1">
+                <div className="text-xs text-[var(--color-abyss-200)] flex justify-between mb-1">
                   <span>High risk threshold</span>
-                  <span className="font-bold text-cyan-400">{highThreshold}%</span>
+                  <span className="font-bold text-[var(--color-accent)]">{highThreshold}%</span>
                 </div>
-                <input type="range" min="50" max="80" step="1" value={highThreshold} onChange={(e) => setHighThreshold(Number(e.target.value))} className="w-full accent-cyan-400" />
-                <div className="text-xs text-slate-600 mt-1">Species below {highThreshold}% trigger HIGH</div>
+                <input type="range" min="50" max="80" step="1" value={highThreshold} onChange={(e) => setHighThreshold(Number(e.target.value))} className="w-full accent-[var(--color-accent)]" />
+                <div className="text-xs text-[var(--color-abyss-500)] mt-1">Species below {highThreshold}% trigger HIGH</div>
               </div>
 
               <div className="mb-4">
-                <div className="text-xs text-slate-300 flex justify-between mb-1">
+                <div className="text-xs text-[var(--color-abyss-200)] flex justify-between mb-1">
                   <span>MSY warning level</span>
-                  <span className="font-bold text-cyan-400">{msyAlertThreshold}%</span>
+                  <span className="font-bold text-[var(--color-accent)]">{msyAlertThreshold}%</span>
                 </div>
-                <input type="range" min="70" max="99" step="1" value={msyAlertThreshold} onChange={(e) => setMsyAlertThreshold(Number(e.target.value))} className="w-full accent-cyan-400" />
-                <div className="text-xs text-slate-600 mt-1">MSY above {msyAlertThreshold}% triggers warning</div>
+                <input type="range" min="70" max="99" step="1" value={msyAlertThreshold} onChange={(e) => setMsyAlertThreshold(Number(e.target.value))} className="w-full accent-[var(--color-accent)]" />
+                <div className="text-xs text-[var(--color-abyss-500)] mt-1">MSY above {msyAlertThreshold}% triggers warning</div>
               </div>
 
               <div className="mb-4">
-                <div className="text-xs text-slate-300 flex justify-between mb-1">
+                <div className="text-xs text-[var(--color-abyss-200)] flex justify-between mb-1">
                   <span>Collapse risk warning</span>
-                  <span className="font-bold text-cyan-400">{collapseAlertThreshold}%</span>
+                  <span className="font-bold text-[var(--color-accent)]">{collapseAlertThreshold}%</span>
                 </div>
-                <input type="range" min="50" max="95" step="5" value={collapseAlertThreshold} onChange={(e) => setCollapseAlertThreshold(Number(e.target.value))} className="w-full accent-cyan-400" />
+                <input type="range" min="50" max="95" step="5" value={collapseAlertThreshold} onChange={(e) => setCollapseAlertThreshold(Number(e.target.value))} className="w-full accent-[var(--color-accent)]" />
               </div>
             </div>
 
             {/* Section B */}
             <div>
-              <div className="text-xs text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Notification Channels</div>
+              <div className="text-xs text-[var(--color-abyss-400)] uppercase tracking-wider mb-4 border-b border-[var(--color-abyss-800)] pb-2">Notification Channels</div>
 
-              <div className="flex items-center justify-between py-2 border-slate-800">
-                <span className="text-xs text-slate-300">In-app alerts</span>
-                <div onClick={() => setNotifyInApp(!notifyInApp)} className={`w-[32px] h-[18px] rounded-full relative cursor-pointer transition-colors ${notifyInApp ? 'bg-cyan-500' : 'bg-slate-700'}`}>
+              <div className="flex items-center justify-between py-2 border-[var(--color-abyss-800)]">
+                <span className="text-xs text-[var(--color-abyss-200)]">In-app alerts</span>
+                <div onClick={() => setNotifyInApp(!notifyInApp)} className={`w-[32px] h-[18px] rounded-full relative cursor-pointer transition-colors ${notifyInApp ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-abyss-700)]'}`}>
                   <div className={`absolute top-[2px] w-[14px] h-[14px] bg-white rounded-full transition-all ${notifyInApp ? 'left-[16px]' : 'left-[2px]'}`} />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-t border-slate-800">
-                <span className="text-xs text-slate-300">Email digest (daily)</span>
-                <div onClick={() => setNotifyEmail(!notifyEmail)} className={`w-[32px] h-[18px] rounded-full relative cursor-pointer transition-colors ${notifyEmail ? 'bg-cyan-500' : 'bg-slate-700'}`}>
+              <div className="flex items-center justify-between py-2 border-t border-[var(--color-abyss-800)]">
+                <span className="text-xs text-[var(--color-abyss-200)]">Email digest (daily)</span>
+                <div onClick={() => setNotifyEmail(!notifyEmail)} className={`w-[32px] h-[18px] rounded-full relative cursor-pointer transition-colors ${notifyEmail ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-abyss-700)]'}`}>
                   <div className={`absolute top-[2px] w-[14px] h-[14px] bg-white rounded-full transition-all ${notifyEmail ? 'left-[16px]' : 'left-[2px]'}`} />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between py-2 border-t border-slate-800">
-                <span className="text-xs text-slate-300">SMS for critical only</span>
-                <div onClick={() => setNotifySMS(!notifySMS)} className={`w-[32px] h-[18px] rounded-full relative cursor-pointer transition-colors ${notifySMS ? 'bg-cyan-500' : 'bg-slate-700'}`}>
+              <div className="flex items-center justify-between py-2 border-t border-[var(--color-abyss-800)]">
+                <span className="text-xs text-[var(--color-abyss-200)]">SMS for critical only</span>
+                <div onClick={() => setNotifySMS(!notifySMS)} className={`w-[32px] h-[18px] rounded-full relative cursor-pointer transition-colors ${notifySMS ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-abyss-700)]'}`}>
                   <div className={`absolute top-[2px] w-[14px] h-[14px] bg-white rounded-full transition-all ${notifySMS ? 'left-[16px]' : 'left-[2px]'}`} />
                 </div>
               </div>
 
-              <button onClick={() => setShowAlertSettings(false)} className="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm px-6 py-2 rounded-lg mt-6 w-full cursor-pointer transition-colors">
+              <button
+                onClick={() => setShowAlertSettings(false)}
+                style={{ background: 'var(--color-accent)', color: 'var(--color-abyss-950)' }}
+                className="hover:opacity-90 font-bold text-sm px-6 py-2 rounded-lg mt-6 w-full cursor-pointer transition-colors"
+              >
                 Apply Settings
               </button>
             </div>
@@ -416,7 +420,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       />
 
       {/* ROW 2: Triple Ring Gauge & Species Table */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-[var(--space-3)] items-start">
         {/* STEP 8: 1fr Triple-Ring Gauge */}
         <div className="col-span-1 h-fit">
           <SustainabilityGaugeAdvanced
@@ -439,7 +443,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       </div>
 
       {/* ROW 3: Smart Alerts & Risk Drivers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-[var(--space-3)]">
         <SmartAlertsPanel
           species={displaySpecies}
           msyUtilizationFn={msyUtilization}
@@ -456,7 +460,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       </div>
 
       {/* ROW 4: Heatmap */}
-      <div className="mb-3 flex flex-col">
+      <div className="mb-[var(--space-3)] flex flex-col">
         <RiskHeatmap
           species={displaySpecies}
           msyUtilizationFn={msyUtilization}
@@ -464,7 +468,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       </div>
 
       {/* ROW 4b: Species Trend Chart */}
-      <div className="mb-3">
+      <div className="mb-[var(--space-3)]">
         <SpeciesTrendChart
           species={displaySpecies}
           msyUtilizationFn={msyUtilization}
@@ -472,7 +476,7 @@ export default function FisheriesIntelligence({ currentData, getRegionalSummary 
       </div>
 
       {/* ROW 5: Recommended Actions */}
-      <div className="mb-3 flex flex-col">
+      <div className="mb-[var(--space-3)] flex flex-col">
         <RecommendedActions
           species={displaySpecies}
           msyUtilizationFn={msyUtilization}

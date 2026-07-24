@@ -36,46 +36,42 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
 
     const getAlertStyle = (priority) => {
         if (priority === 'CRITICAL') return {
-            accentColor: '#f87171',
-            rgbBorder: '248,113,113',
+            accentColor: 'var(--color-danger)',
+            rgbBorder: '242, 102, 91',
             iconText: '!',
             desc: (species) => `${species}: Critical status. Severe overfishing. Immediate action required.`
         };
         if (priority === 'HIGH') return {
-            accentColor: '#fb923c',
-            rgbBorder: '251,146,60',
+            accentColor: 'var(--color-amber)',
+            rgbBorder: '240, 169, 78',
             iconText: '▲',
             desc: (species, msy) => `${species}: Declining status. ${Math.round(msy)}% MSY utilization. Intervention needed.`
         };
         return {
-            accentColor: '#facc15',
-            rgbBorder: '250,204,21',
+            accentColor: 'var(--color-warning)',
+            rgbBorder: '240, 169, 78',
             iconText: '–',
             desc: (species) => `${species}: Moderate risk. Monitor over next 30 days.`
         };
     };
 
     return (
-        <div style={{
-            background: '#040d1a',
-            border: '0.5px solid #0d2135',
-            borderRadius: 9,
-            borderTop: '1.5px solid #f87171',
-            padding: '14px',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-        }}>
+        <div
+            className="card flex flex-col h-full"
+            style={{
+                borderTop: '2px solid var(--color-danger)',
+            }}
+        >
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44' }}>Smart Alert Prioritization</span>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-abyss-400)' }}>Smart Alert Prioritization</span>
                 <span style={{
                     fontSize: 9, padding: '2px 8px', borderRadius: 99, fontWeight: 700,
-                    borderLeft: '2px solid #fb923c',
-                    background: 'rgba(251,146,60,0.07)',
-                    border: '0.5px solid rgba(251,146,60,0.25)',
+                    borderLeft: '2px solid var(--color-amber)',
+                    background: 'rgba(240, 169, 78, 0.08)',
+                    border: '1px solid rgba(240, 169, 78, 0.2)',
                     borderLeftWidth: 2,
-                    color: '#fb923c',
+                    color: 'var(--color-amber)',
                 }}>
                     {allAlerts.length} active · {criticalCount} critical
                 </span>
@@ -84,7 +80,7 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
             {/* List */}
             <div className="overflow-y-auto pr-1 space-y-[5px] custom-scrollbar max-h-[300px]">
                 {alerts.length === 0 ? (
-                    <div className="text-center py-4 text-xs text-slate-500 italic">No active alerts. System nominal.</div>
+                    <div className="text-center py-4 text-xs text-[var(--color-abyss-400)] italic">No active alerts. System nominal.</div>
                 ) : (
                     alerts.map((a, idx) => {
                         const style = getAlertStyle(a.priority);
@@ -95,9 +91,9 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
 
                         return (
                             <div key={idx} style={{
-                                background: '#040f1f',
+                                background: 'var(--color-abyss-950)',
                                 borderLeft: `2px solid ${style.accentColor}`,
-                                border: `0.5px solid rgba(${style.rgbBorder}, 0.2)`,
+                                border: `1px solid rgba(${style.rgbBorder}, 0.2)`,
                                 borderLeftWidth: 2,
                                 borderRadius: 7,
                                 padding: '8px 10px',
@@ -108,7 +104,7 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
                                 {/* 1. Icon */}
                                 <div style={{
                                     flexShrink: 0, width: 18, height: 18, borderRadius: '50%',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    display: 'flex', alignItems: 'center', justifycontent: 'center',
                                     fontSize: 10, fontWeight: 800,
                                     background: `rgba(${style.rgbBorder}, 0.1)`,
                                     color: style.accentColor,
@@ -117,19 +113,19 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
                                 </div>
 
                                 {/* 2. Middle Block */}
-                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifycontent: 'center' }}>
                                     <div style={{ fontSize: 11, fontWeight: 800, lineHeight: 1, marginBottom: 4, color: style.accentColor }}>
                                         {a.species} {protectedSp && '🛡️'}
                                     </div>
-                                    <div style={{ fontSize: 9, color: '#2a4a62', lineHeight: 1.5, marginBottom: 6 }}>
+                                    <div style={{ fontSize: 9, color: 'var(--color-abyss-400)', lineHeight: 1.5, marginBottom: 6 }}>
                                         {style.desc(a.species, msyPercent)}
                                     </div>
                                     <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                                        <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(34,211,238,0.07)', border: '0.5px solid rgba(34,211,238,0.2)', color: '#22d3ee' }}>H: {Math.round(health)}%</span>
-                                        <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: msyPercent > 90 ? 'rgba(248,113,113,0.07)' : 'rgba(251,146,60,0.07)', border: msyPercent > 90 ? '0.5px solid rgba(248,113,113,0.25)' : '0.5px solid rgba(251,146,60,0.25)', color: msyPercent > 90 ? '#f87171' : '#fb923c' }}>MSY: {Math.round(msyPercent)}%</span>
-                                        {trend.toLowerCase().includes('declin') && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(250,204,21,0.07)', border: '0.5px solid rgba(250,204,21,0.25)', color: '#facc15' }}>Declining</span>}
-                                        {trend.toLowerCase().includes('critical') && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(248,113,113,0.07)', border: '0.5px solid rgba(248,113,113,0.25)', color: '#f87171' }}>Critical</span>}
-                                        {a.season_open === false && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(74,222,128,0.07)', border: '0.5px solid rgba(74,222,128,0.25)', color: '#4ade80' }}>Spawning Q2</span>}
+                                        <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(45, 212, 191, 0.08)', border: '1px solid rgba(45, 212, 191, 0.2)', color: 'var(--color-accent)' }}>H: {Math.round(health)}%</span>
+                                        <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: msyPercent > 90 ? 'rgba(242, 102, 91, 0.08)' : 'rgba(240, 169, 78, 0.08)', border: msyPercent > 90 ? '1px solid rgba(242, 102, 91, 0.2)' : '1px solid rgba(240, 169, 78, 0.2)', color: msyPercent > 90 ? 'var(--color-danger)' : 'var(--color-amber)' }}>MSY: {Math.round(msyPercent)}%</span>
+                                        {trend.toLowerCase().includes('declin') && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(240, 169, 78, 0.08)', border: '1px solid rgba(240, 169, 78, 0.2)', color: 'var(--color-amber)' }}>Declining</span>}
+                                        {trend.toLowerCase().includes('critical') && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(242, 102, 91, 0.08)', border: '1px solid rgba(242, 102, 91, 0.2)', color: 'var(--color-danger)' }}>Critical</span>}
+                                        {a.season_open === false && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, background: 'rgba(111, 207, 151, 0.08)', border: '1px solid rgba(111, 207, 151, 0.2)', color: 'var(--color-green)' }}>Spawning Q2</span>}
                                     </div>
                                 </div>
 
@@ -137,7 +133,7 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
                                 <div style={{
                                     fontSize: 8, padding: '2px 7px', borderRadius: 99, fontWeight: 800,
                                     background: `rgba(${style.rgbBorder}, 0.1)`,
-                                    border: `0.5px solid rgba(${style.rgbBorder}, 0.3)`,
+                                    border: `1px solid rgba(${style.rgbBorder}, 0.3)`,
                                     color: style.accentColor,
                                     flexShrink: 0, alignSelf: 'flex-start',
                                     letterSpacing: '0.08em', textTransform: 'uppercase',
@@ -149,7 +145,7 @@ export default function SmartAlertsPanel({ species, msyUtilizationFn, critThresh
                     })
                 )}
                 {hiddenCount > 0 && (
-                    <div className="text-center py-2 text-[10px] text-slate-500 italic mt-2">
+                    <div className="text-center py-2 text-[10px] text-[var(--color-abyss-400)] italic mt-2">
                         ... and {hiddenCount} more alerts
                     </div>
                 )}

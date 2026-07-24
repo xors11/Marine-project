@@ -21,22 +21,22 @@ export default function HistoricalAnalogPanel({ currentSST, currentPressure, cur
     }, [currentSST, currentPressure, currentWind, summaryData]);
 
     return (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-4">
-            <div className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-3">Top Historical Analogs</div>
+        <div className="card">
+            <div className="text-[var(--color-accent)] text-xs font-bold uppercase tracking-wider mb-3">Top Historical Analogs</div>
             <div className="flex flex-col gap-2">
                 {analogs.map((storm, i) => (
                     <div key={storm.SID || i}
-                        className="bg-slate-800 rounded-lg p-3 border-l-4 transition-all hover:bg-slate-700"
-                        style={{ borderColor: storm.cat.color }}
+                        className="bg-[var(--color-abyss-950)] border border-[var(--color-abyss-800)] rounded-lg p-3 border-l-4 transition-all hover:bg-[var(--color-abyss-900)]"
+                        style={{ borderLeftColor: storm.cat.color }}
                     >
                         <div className="flex justify-between items-start">
                             <div>
-                                <div className="text-white font-bold text-sm">{storm.name}</div>
-                                <div className="text-slate-400 text-xs mt-0.5">{Math.floor(storm.season)} — {storm.cat.label}</div>
+                                <div className="text-[var(--color-abyss-100)] font-bold text-sm">{storm.name}</div>
+                                <div className="text-[var(--color-abyss-400)] text-xs mt-0.5">{Math.floor(storm.season)} — {storm.cat.label}</div>
                             </div>
-                            <div className="text-cyan-400 font-bold text-sm">{storm.similarity}%</div>
+                            <div className="text-[var(--color-accent)] font-bold text-sm">{storm.similarity}%</div>
                         </div>
-                        <div className="flex gap-3 mt-2 text-xs text-slate-400">
+                        <div className="flex gap-3 mt-2 text-xs text-[var(--color-abyss-400)]">
                             <span>💨 {Math.round(storm.max_wind_kmh)} km/h</span>
                             <span>📉 {storm.min_pressure_mb} mb</span>
                         </div>

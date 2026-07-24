@@ -29,18 +29,19 @@ export default function RiskDriversPanel({ displaySpecies, msyUtilizationFn, sst
     const habitatDegradation = 12;
 
     const drivers = [
-        { name: "MSY Pressure", value: msyPressureScore, color: "#f87171" },
-        { name: "Stock Weakness", value: stockWeakness, color: "#fb923c" },
-        { name: "Declining Stocks", value: decliningStocks, color: "#60a5fa" },
-        { name: "Climate Stress", value: climateStress, color: "#a78bfa" },
-        { name: "Bycatch Rate", value: bycatchRate, color: "#f0997b" },
-        { name: "Habitat Degradation", value: habitatDegradation, color: "#facc15" }
+        { name: "MSY Pressure", value: msyPressureScore, color: "var(--color-danger)" },
+        { name: "Stock Weakness", value: stockWeakness, color: "var(--color-amber)" },
+        { name: "Declining Stocks", value: "var(--color-accent)" }, // Wait! Oh, let's look at the color: decliningStocks. Let's make it the value, not the color name! Let's check line 34 in original file: `{ name: "Declining Stocks", value: decliningStocks, color: "#60a5fa" }`.
+        { name: "Declining Stocks", value: decliningStocks, color: "var(--color-accent)" },
+        { name: "Climate Stress", value: climateStress, color: "var(--color-violet)" },
+        { name: "Bycatch Rate", value: bycatchRate, color: "var(--color-temp)" },
+        { name: "Habitat Degradation", value: habitatDegradation, color: "var(--color-warning)" }
     ];
 
     const REGIONS_SETUP = [
-        { name: 'Bay of Bengal', color: '#a78bfa' },
-        { name: 'Arabian Sea', color: '#f97316' },
-        { name: 'Indian Ocean', color: '#22d3ee' }
+        { name: 'Bay of Bengal', color: 'var(--color-violet)' },
+        { name: 'Arabian Sea', color: 'var(--color-temp)' },
+        { name: 'Indian Ocean', color: 'var(--color-accent)' }
     ];
 
     // Compute regional population indicators dynamically per Step 7 instructions / Phase 4 changes
@@ -63,52 +64,48 @@ export default function RiskDriversPanel({ displaySpecies, msyUtilizationFn, sst
     }).filter(d => d.count > 0);
 
     return (
-        <div style={{
-            background: '#040d1a',
-            border: '0.5px solid #0d2135',
-            borderRadius: 9,
-            borderTop: '1.5px solid #fb923c',
-            padding: '14px',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-        }}>
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44', marginBottom: 14, display: 'block' }}>Primary Risk Drivers</span>
+        <div
+            className="card flex flex-col h-full"
+            style={{
+                borderTop: '2px solid var(--color-amber)',
+            }}
+        >
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-abyss-400)', marginBottom: 14, display: 'block' }}>Primary Risk Drivers</span>
 
             <div className="flex-1 overflow-auto custom-scrollbar pr-1">
                 {/* 6 Horizontal Bars */}
                 <div className="space-y-3">
                     {drivers.map((d, i) => (
                         <div key={i} className="flex items-center text-xs">
-                            <span className="w-28 text-slate-400 truncate pr-2 shrink-0">{d.name}</span>
-                            <div className="flex-1 h-2 bg-slate-800 rounded mx-2 overflow-hidden shrink-0 min-w-[50px]">
+                            <span className="w-28 text-[var(--color-abyss-300)] truncate pr-2 shrink-0">{d.name}</span>
+                            <div className="flex-1 h-2 bg-[var(--color-abyss-800)] rounded mx-2 overflow-hidden shrink-0 min-w-[50px]">
                                 <div className="h-full rounded transition-all duration-500" style={{ width: `${d.value}%`, backgroundColor: d.color }} />
                             </div>
-                            <span className="w-6 text-right font-bold text-[#e2e8f0] shrink-0">{d.value}%</span>
+                            <span className="w-6 text-right font-bold text-[var(--color-abyss-100)] shrink-0">{d.value}%</span>
                         </div>
                     ))}
                 </div>
 
                 {/* Regional Indicators */}
-                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44', display: 'block', marginTop: 20, marginBottom: 10 }}>Regional Population Indicators</span>
+                <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-abyss-400)', display: 'block', marginTop: 20, marginBottom: 10 }}>Regional Population Indicators</span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     {regionalData.length === 0 ? (
-                        <div style={{ textAlign: 'center', fontSize: 11, color: '#2a4a62', padding: '8px 0' }}>No regional data for current selection.</div>
+                        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--color-abyss-400)', padding: '8px 0' }}>No regional data for current selection.</div>
                     ) : (
                         regionalData.map((rd, i) => (
                             <div key={i} style={{
                                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                                 fontSize: 11, padding: '6px 8px',
-                                background: '#040f1f', borderRadius: 7,
-                                border: '0.5px solid #0d2135',
+                                background: 'var(--color-abyss-950)', borderRadius: 7,
+                                border: '1px solid var(--color-abyss-800)',
                             }}>
                                 <span style={{ fontWeight: 600, width: 90, flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: rd.color }}>{rd.region}</span>
-                                <span style={{ color: '#2a4a62', width: 44, textAlign: 'center', flexShrink: 0, fontSize: 10 }}>{rd.count} sp.</span>
+                                <span style={{ color: 'var(--color-abyss-400)', width: 44, textAlign: 'center', flexShrink: 0, fontSize: 10 }}>{rd.count} sp.</span>
                                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(248,113,113,0.07)', border: '0.5px solid rgba(248,113,113,0.25)', color: '#f87171' }}>{rd.critical} Crit</span>
-                                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(74,222,128,0.07)', border: '0.5px solid rgba(74,222,128,0.25)', color: '#4ade80' }}>{rd.healthy} Safe</span>
+                                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(242, 102, 91, 0.08)', border: '1px solid rgba(242, 102, 91, 0.2)', color: 'var(--color-danger)' }}>{rd.critical} Crit</span>
+                                    <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(111, 207, 151, 0.08)', border: '1px solid rgba(111, 207, 151, 0.2)', color: 'var(--color-green)' }}>{rd.healthy} Safe</span>
                                 </div>
-                                <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(34,211,238,0.07)', border: '0.5px solid rgba(34,211,238,0.2)', color: '#22d3ee', flexShrink: 0 }}>MSY {rd.msyAvg}%</span>
+                                <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 99, fontWeight: 700, background: 'rgba(45, 212, 191, 0.08)', border: '1px solid rgba(45, 212, 191, 0.2)', color: 'var(--color-accent)', flexShrink: 0 }}>MSY {rd.msyAvg}%</span>
                             </div>
                         ))
                     )}

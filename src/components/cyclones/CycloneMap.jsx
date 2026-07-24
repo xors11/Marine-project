@@ -4,13 +4,13 @@ import 'leaflet/dist/leaflet.css';
 
 function getTrackStyle(windKnots) {
     if (windKnots < 34) {
-        return { color: "#5DADE2", weight: 2 }; // Tropical Depression
+        return { color: "var(--color-violet)", weight: 2 }; // Tropical Depression
     } else if (windKnots < 64) {
-        return { color: "#00E5FF", weight: 3 }; // Tropical Storm
+        return { color: "var(--color-accent)", weight: 3 }; // Tropical Storm
     } else if (windKnots < 96) {
-        return { color: "#FFA500", weight: 4 }; // Cyclone
+        return { color: "var(--color-amber)", weight: 4 }; // Cyclone
     } else {
-        return { color: "#FF3B3B", weight: 5 }; // Severe Cyclone
+        return { color: "var(--color-danger)", weight: 5 }; // Severe Cyclone
     }
 }
 
@@ -53,7 +53,7 @@ export default function CycloneMap({ tracksData, selectedYear }) {
     }, [tracksData, selectedYear]);
 
     return (
-        <div style={{ height: '400px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(36,144,204,0.3)', position: 'relative', zIndex: 1 }}>
+        <div style={{ height: '400px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--color-abyss-800)', position: 'relative', zIndex: 1 }}>
             <MapContainer center={[15, 85]} zoom={5} style={{ height: '100%', width: '100%', background: '#020d18' }}>
                 <TileLayer
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"

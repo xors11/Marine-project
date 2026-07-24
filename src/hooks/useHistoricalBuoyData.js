@@ -1,26 +1,33 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { fetchHistoricalBuoyData } from '../services/api';
 
 /**
- * useHistoricalBuoyData — LAZY version
+ * useHistoricalBuoyData — LAZY, YEAR-BASED version
  *
- * Data is fetched ONLY when `load()` is called for the first time.
- * Subsequent calls to `load()` are no-ops if data is already cached.
+ * Data is fetched ONLY when `load(year)` is called for a new year.
+ * Subsequent calls to `load(year)` are no-ops if that year's data is already cached.
  * This prevents re-fetching when the user toggles back and forth.
  */
 export function useHistoricalBuoyData() {
-    const [allData, setAllData] = useState(null); // null = not yet loaded
+    const [allData, setAllData] = useState([]); // Array of parsed records across all loaded years
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const load = useCallback(async () => {
-        // ── Guard: skip if already loaded or currently loading ───────────────
-        if (allData !== null || loading) return;
+    // Track loaded and loading years to avoid redundant fetches
+    const loadedYearsRef = useRef(new Set());
+    const loadingYearsRef = useRef(new Set());
 
+    const load = useCallback(async (year) => {
+        if (!year) return;
+        if (loadedYearsRef.current.has(year) || loadingYearsRef.current.has(year)) {
+            return;
+        }
+
+        loadingYearsRef.current.add(year);
         setLoading(true);
         setError(null);
         try {
-            const raw = await fetchHistoricalBuoyData();
+            const raw = await fetchHistoricalBuoyData(year);
 
             const parsed = raw.map((row) => {
                 const tsRaw =
@@ -41,7 +48,7 @@ export function useHistoricalBuoyData() {
                 return {
                     ...row,
                     timestamp: ts,
-                    year: ts ? ts.getFullYear() : null,
+                    year: ts ? ts.getFullYear() : year, // fallback to requested year if parse fails or is missing
                     WTMP: wtmp,
                     WSPD: wspd,
                     WVHT: wvht,
@@ -67,17 +74,24 @@ export function useHistoricalBuoyData() {
                 };
             });
 
-            setAllData(parsed);
+            setAllData((prev) => {
+                // Remove any pre-existing rows for this year (in case of retry/overwrite)
+                const filtered = prev.filter(r => r.year !== year);
+                return [...filtered, ...parsed];
+            });
+
+            loadedYearsRef.current.add(year);
         } catch (err) {
-            setError(err.message || 'Failed to fetch historical data');
+            setError(err.message || `Failed to fetch historical data for ${year}`);
         } finally {
-            setLoading(false);
+            loadingYearsRef.current.delete(year);
+            setLoading(loadingYearsRef.current.size > 0);
         }
-    }, [allData, loading]);
+    }, []);
 
     return {
         allData: allData ?? [],   // always return an array for downstream code
-        hasLoaded: allData !== null,
+        hasLoaded: loadedYearsRef.current.size > 0,
         loading,
         error,
         load,                     // caller triggers fetch on demand

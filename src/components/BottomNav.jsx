@@ -10,7 +10,7 @@ export default function BottomNav({ activeTab, onTabChange }) {
     ];
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-950/90 backdrop-blur-md border-t border-slate-800/60 safe-bottom">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[rgba(2,13,24,0.9)] backdrop-blur-md border-t border-[rgba(7,41,67,0.6)] safe-bottom">
             <div className="flex justify-around items-center p-2">
                 {navItems.map(item => {
                     const isActive = activeTab === item.id;
@@ -18,7 +18,7 @@ export default function BottomNav({ activeTab, onTabChange }) {
                         <button
                             key={item.id}
                             onClick={() => onTabChange(item.id)}
-                            className={`flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors ${isActive ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'
+                            className={`flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors ${isActive ? 'text-[var(--color-accent)]' : 'text-[var(--color-abyss-400)] hover:text-[var(--color-abyss-200)]'
                                 }`}
                         >
                             <div className={`mb-1 transition-transform ${isActive ? 'scale-110' : ''}`}>

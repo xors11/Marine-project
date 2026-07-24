@@ -28,20 +28,20 @@ export default function CycloneTrendGraph({ tracksData }) {
     }, [tracksData]);
 
     return (
-        <div className="glass-panel" style={{ padding: '1.5rem', height: 350, display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ color: '#4db8e8', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600 }}>Climate Trend: Avg Max Wind (km/h)</h3>
+        <div className="card flex flex-col" style={{ height: 350 }}>
+            <h3 style={{ color: 'var(--color-accent)', marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600 }}>Climate Trend: Avg Max Wind (km/h)</h3>
             <div style={{ flex: 1, minHeight: 0, minWidth: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                        <XAxis dataKey="year" stroke="#4db8e8" fontSize={12} minTickGap={20} />
-                        <YAxis stroke="#4db8e8" fontSize={12} domain={['auto', 'auto']} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-abyss-800)" />
+                        <XAxis dataKey="year" stroke="var(--color-abyss-400)" fontSize={12} minTickGap={20} />
+                        <YAxis stroke="var(--color-abyss-400)" fontSize={12} domain={['auto', 'auto']} />
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#071e2b', borderColor: '#4db8e8', borderRadius: '8px' }}
-                            itemStyle={{ color: '#fff' }}
-                            labelStyle={{ color: '#4db8e8', fontWeight: 'bold' }}
+                            contentStyle={{ backgroundColor: 'rgba(2, 13, 24, 0.95)', borderColor: 'var(--color-abyss-800)', borderRadius: '8px' }}
+                            itemStyle={{ color: 'var(--color-abyss-100)' }}
+                            labelStyle={{ color: 'var(--color-accent)', fontWeight: 'bold' }}
                         />
-                        <Line type="monotone" dataKey="avgWind" name="Avg Max Wind" stroke="#ff4d6d" strokeWidth={3} dot={{ r: 4, fill: '#0a192f', stroke: '#ff4d6d', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#ff4d6d' }} />
+                        <Line type="monotone" dataKey="avgWind" name="Avg Max Wind" stroke="var(--color-danger)" strokeWidth={3} dot={{ r: 4, fill: '#0a192f', stroke: 'var(--color-danger)', strokeWidth: 2 }} activeDot={{ r: 6, fill: 'var(--color-danger)' }} />
                     </LineChart>
                 </ResponsiveContainer>
             </div>

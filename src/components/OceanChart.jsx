@@ -9,26 +9,45 @@ import { linearForecast } from '../lib/forecastUtils';
 
 // ─── Static style objects ─────────────────────────────────────────────────────
 const CHART_MARGIN = { top: 10, right: 16, left: 0, bottom: 0 };
-const GRID_STYLE = { strokeDasharray: '3 3', stroke: 'rgba(36,144,204,0.1)', vertical: false };
-const XAXIS_TICK = { fill: '#4db8e8', fontSize: 9 };
-const XAXIS_LINE = { stroke: 'rgba(36,144,204,0.2)' };
-const YAXIS_TICK = { fill: '#4db8e8', fontSize: 10 };
+const GRID_STYLE = { strokeDasharray: '3 3', stroke: 'var(--color-abyss-800)', vertical: false };
+const XAXIS_TICK = { fill: 'var(--color-abyss-300)', fontSize: 9 };
+const XAXIS_LINE = { stroke: 'var(--color-abyss-800)' };
+const YAXIS_TICK = { fill: 'var(--color-abyss-300)', fontSize: 10 };
 const Y_DOMAIN = ['auto', 'auto'];
 
-// Area fills — increased opacity (Change 4)
-const AREA_FILLS = {
-    sea_surface_temp: '#f9731620',
-    wind_speed: '#22d3ee18',
-    air_pressure: '#a78bfa18',
-    wave_height: '#4ade8018',
+const getParamThemeColor = (key) => {
+    switch (key) {
+        case 'sea_surface_temp':
+        case 'WTMP':
+            return 'var(--color-temp)';
+        case 'wind_speed':
+        case 'WSPD':
+            return 'var(--color-accent)';
+        case 'air_pressure':
+        case 'PRES':
+            return 'var(--color-violet)';
+        case 'wave_height':
+        case 'WVHT':
+            return 'var(--color-green)';
+        default:
+            return 'var(--color-accent)';
+    }
 };
 
-// Normal range band colors (Change 5)
+// Area fills — using CSS theme variables (opacity controlled via fillOpacity)
+const AREA_FILLS = {
+    sea_surface_temp: 'var(--color-temp)',
+    wind_speed: 'var(--color-accent)',
+    air_pressure: 'var(--color-violet)',
+    wave_height: 'var(--color-green)',
+};
+
+// Normal range band colors — using CSS theme variables (opacity controlled via fillOpacity)
 const BAND_FILLS = {
-    sea_surface_temp: '#f9731610',
-    wind_speed: '#22d3ee10',
-    air_pressure: '#a78bfa10',
-    wave_height: '#4ade8010',
+    sea_surface_temp: 'var(--color-temp)',
+    wind_speed: 'var(--color-accent)',
+    air_pressure: 'var(--color-violet)',
+    wave_height: 'var(--color-green)',
 };
 
 // ─── Enhanced Custom Tooltip ─────────────────────────────────────────────────
@@ -44,39 +63,40 @@ function CustomTooltip({ active, payload, label }) {
 
     return (
         <div style={{
-            background: '#0a1628', border: '1px solid #22d3ee',
-            borderRadius: '12px', padding: '12px 16px',
+            background: 'var(--color-card)', border: '1px solid var(--color-accent)',
+            borderRadius: '12px', padding: 'var(--space-3) var(--space-4)',
             fontSize: '0.85rem', backdropFilter: 'blur(12px)', minWidth: 220,
             boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
         }}>
-            <div style={{ color: '#94a3b8', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>
+            <div style={{ color: 'var(--color-abyss-300)', fontWeight: 600, marginBottom: 8, fontSize: '0.75rem' }}>
                 {label}
             </div>
             {payload.filter(e => !e.dataKey?.endsWith('_fc')).map((entry, idx) => {
                 const isMA = entry.dataKey?.endsWith('_ma');
+                const themeColor = getParamThemeColor(entry.dataKey?.replace('_ma', ''));
                 return (
-                    <div key={`${entry.dataKey}_${idx}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: entry.color, marginBottom: 3 }}>
+                    <div key={`${entry.dataKey}_${idx}`} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: themeColor, marginBottom: 3 }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             {entry.name}
                             {isMA && (
-                                <span style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)', borderRadius: 4, padding: '0 4px', fontSize: '0.58rem', color: '#22d3ee' }}>
+                                <span style={{ background: 'rgba(45,212,191,0.08)', border: '1px solid rgba(45,212,191,0.2)', borderRadius: 4, padding: '0 4px', fontSize: '0.58rem', color: 'var(--color-accent)' }}>
                                     24h trend
                                 </span>
                             )}
                         </span>
-                        <span style={{ fontWeight: 700, fontSize: '1rem', color: '#22d3ee' }}>
+                        <span className="data-value" style={{ fontWeight: 700, fontSize: '1rem', color: themeColor }}>
                             {entry.value != null ? Number(entry.value).toFixed(2) : '—'}
                         </span>
                     </div>
                 );
             })}
             {hasForecast && (
-                <div className="bg-blue-950 text-blue-400 border border-blue-900 text-xs px-2 py-0.5 rounded font-semibold mt-2 text-center">
+                <div style={{ background: 'rgba(45, 212, 191, 0.08)', color: 'var(--color-accent)', border: '1px solid rgba(45, 212, 191, 0.2)' }} className="text-xs px-2 py-0.5 rounded font-semibold mt-2 text-center">
                     📈 Forecast projection
                 </div>
             )}
             {hasAnomaly && (
-                <div className="bg-red-950 text-red-400 border border-red-900 text-xs px-2 py-0.5 rounded font-semibold mt-2 text-center">
+                <div style={{ background: 'rgba(242, 102, 91, 0.08)', color: 'var(--color-danger)', border: '1px solid rgba(242, 102, 91, 0.2)' }} className="text-xs px-2 py-0.5 rounded font-semibold mt-2 text-center">
                     ⚠ Anomaly Detected
                 </div>
             )}
@@ -98,8 +118,8 @@ function SmartDot(props) {
     if (isAnomaly(payload[dataKey], fieldMean, fieldStd)) {
         return (
             <g>
-                <circle cx={cx} cy={cy} r={5} fill="#f87171" opacity={0.9} />
-                <circle cx={cx} cy={cy} r={2.5} fill="#0a1628" />
+                <circle cx={cx} cy={cy} r={5} fill="var(--color-danger)" opacity={0.9} />
+                <circle cx={cx} cy={cy} r={2.5} fill="var(--color-card)" />
             </g>
         );
     }
@@ -111,13 +131,13 @@ function SmartDot(props) {
 function AnomalyBadge({ s }) {
     if (!s || s.anomalyCount === 0) return null;
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-            <div className="bg-red-950 text-red-400 border border-red-900 text-xs px-2 py-0.5 rounded font-semibold" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f87171', display: 'inline-block' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(242, 102, 91, 0.08)', color: 'var(--color-danger)', border: '1px solid rgba(242, 102, 91, 0.2)' }} className="text-xs px-2 py-0.5 rounded font-semibold flex items-center gap-1">
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--color-danger)', display: 'inline-block' }} />
                 {s.anomalyCount} anomal{s.anomalyCount === 1 ? 'y' : 'ies'}
             </div>
             {s.extremeCount > 0 && (
-                <div className="bg-red-950/80 text-red-300 border border-red-800 text-xs px-2 py-0.5 rounded font-semibold">
+                <div style={{ background: 'rgba(242, 102, 91, 0.05)', color: 'var(--color-danger)', border: '1px solid rgba(242, 102, 91, 0.15)', opacity: 0.8 }} className="text-xs px-2 py-0.5 rounded font-semibold">
                     {s.extremeCount} extreme
                 </div>
             )}
@@ -127,22 +147,23 @@ function AnomalyBadge({ s }) {
 
 // ─── Chart Legend Row ─────────────────────────────────────────────────────────
 function ChartLegend({ param }) {
+    const themeColor = getParamThemeColor(param.key);
     return (
-        <div className="flex gap-3 mb-2 text-xs text-slate-500 flex-wrap">
+        <div className="flex gap-[var(--space-3)] mb-[var(--space-2)] text-xs text-[var(--color-abyss-400)] flex-wrap">
             <span className="flex items-center gap-1">
-                <span style={{ width: 14, height: 2, background: param.color, display: 'inline-block', borderRadius: 1 }} />
+                <span style={{ width: 14, height: 2, background: themeColor, display: 'inline-block', borderRadius: 1 }} />
                 Live reading
             </span>
             <span className="flex items-center gap-1">
-                <span style={{ width: 14, height: 2, background: param.color, opacity: 0.5, display: 'inline-block', borderRadius: 1, borderTop: '1px dashed' }} />
+                <span style={{ width: 14, height: 2, background: themeColor, opacity: 0.5, display: 'inline-block', borderRadius: 1, borderTop: '1px dashed' }} />
                 12h forecast
             </span>
             <span className="flex items-center gap-1">
-                <span style={{ width: 10, height: 8, background: param.color, opacity: 0.1, display: 'inline-block', borderRadius: 2 }} />
+                <span style={{ width: 10, height: 8, background: themeColor, opacity: 0.1, display: 'inline-block', borderRadius: 2 }} />
                 Normal range
             </span>
             <span className="flex items-center gap-1">
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f87171', display: 'inline-block' }} />
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-danger)', display: 'inline-block' }} />
                 Anomaly point
             </span>
         </div>
@@ -152,16 +173,17 @@ function ChartLegend({ param }) {
 // ─── Per-parameter sub-chart ──────────────────────────────────────────────────
 const ParamChart = memo(function ParamChart({ param, chartData, forecastData, stats, showMovingAverage, activeBuoy }) {
     const s = stats[param.key];
+    const themeColor = getParamThemeColor(param.key);
 
     const activeDot = useMemo(
-        () => ({ r: 5, fill: param.color, stroke: '#fff', strokeWidth: 1 }),
-        [param.color]
+        () => ({ r: 5, fill: themeColor, stroke: '#fff', strokeWidth: 1 }),
+        [themeColor]
     );
 
     const maKey = `${param.key}_ma`;
     const fcKey = `${param.key}_fc`;
-    const areaFill = AREA_FILLS[param.key] || 'rgba(0,212,255,0.08)';
-    const bandFill = BAND_FILLS[param.key] || 'rgba(0,212,255,0.05)';
+    const areaFill = AREA_FILLS[param.key] || 'var(--color-accent)';
+    const bandFill = BAND_FILLS[param.key] || 'var(--color-accent)';
 
     // Calculate μ±1σ bounds for reference band (Change 5)
     const upperBound = s?.mean != null && s?.std != null ? s.mean + s.std : null;
@@ -196,23 +218,23 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
     }, [chartData, forecastData]);
 
     return (
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 md:p-5 mb-4 overflow-hidden">
+        <div className="card mb-[var(--space-4)] overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: param.color, display: 'inline-block', flexShrink: 0 }} />
-                    <div style={{ width: 3, height: 18, borderRadius: 2, background: param.color }} />
-                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: param.color }}>
+                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: themeColor, display: 'inline-block', flexShrink: 0 }} />
+                    <div style={{ width: 3, height: 18, borderRadius: 2, background: themeColor }} />
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: themeColor }}>
                         {param.label}
                     </span>
-                    <span className="md:hidden text-[9px] text-slate-500 ml-1">
+                    <span className="md:hidden text-[9px] text-[var(--color-abyss-400)] ml-1">
                         · {activeBuoy?.name || 'RAMA 23003'}
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: '#4db8e8', opacity: 0.7 }}>({param.unit})</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--color-abyss-300)', opacity: 0.7 }}>({param.unit})</span>
                 </div>
                 <div className="flex items-center gap-2">
                     {forecastData?.length > 0 && (
-                        <span className="bg-blue-950 text-blue-400 border border-blue-900 text-xs px-2 py-0.5 rounded font-semibold">
+                        <span style={{ background: 'rgba(45, 212, 191, 0.08)', color: 'var(--color-accent)', border: '1px solid rgba(45, 212, 191, 0.2)' }} className="text-xs px-2 py-0.5 rounded font-semibold">
                             +{forecastData.length}h forecast
                         </span>
                     )}
@@ -248,7 +270,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                             y1={lowerBound}
                             y2={upperBound}
                             fill={bandFill}
-                            fillOpacity={1}
+                            fillOpacity={0.06}
                             stroke="none"
                         />
                     )}
@@ -257,9 +279,10 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                     {s?.mean != null && (
                         <ReferenceLine
                             y={s.mean}
-                            stroke="rgba(0,212,255,0.35)"
+                            stroke="var(--color-accent)"
+                            strokeOpacity={0.35}
                             strokeDasharray="5 3"
-                            label={{ value: `μ ${Number(s.mean).toFixed(1)}`, position: 'insideTopRight', fill: 'rgba(0,212,255,0.55)', fontSize: 10 }}
+                            label={{ value: `μ ${Number(s.mean).toFixed(1)}`, position: 'insideTopRight', fill: 'var(--color-accent)', opacity: 0.6, fontSize: 10 }}
                         />
                     )}
 
@@ -267,9 +290,10 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                     {s?.anomalyThreshold != null && (
                         <ReferenceLine
                             y={s.anomalyThreshold}
-                            stroke="rgba(255,77,109,0.4)"
+                            stroke="var(--color-danger)"
+                            strokeOpacity={0.4}
                             strokeDasharray="4 4"
-                            label={{ value: 'μ+2σ', position: 'insideTopRight', fill: 'rgba(255,77,109,0.6)', fontSize: 10 }}
+                            label={{ value: 'μ+2σ', position: 'insideTopRight', fill: 'var(--color-danger)', opacity: 0.6, fontSize: 10 }}
                         />
                     )}
 
@@ -277,10 +301,10 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                     {forecastStartLabel && (
                         <ReferenceLine
                             x={forecastStartLabel}
-                            stroke={param.color}
+                            stroke={themeColor}
                             strokeOpacity={0.4}
                             strokeDasharray="4 3"
-                            label={{ value: 'forecast →', position: 'insideTopRight', fill: param.color, fontSize: 10, opacity: 0.5 }}
+                            label={{ value: 'forecast →', position: 'insideTopRight', fill: themeColor, fontSize: 10, opacity: 0.5 }}
                         />
                     )}
 
@@ -289,7 +313,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                         type="monotone"
                         dataKey={param.key}
                         fill={areaFill}
-                        fillOpacity={1}
+                        fillOpacity={0.12}
                         stroke="none"
                         isAnimationActive={false}
                     />
@@ -299,7 +323,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                         type="monotone"
                         dataKey={param.key}
                         name={param.label}
-                        stroke={param.color}
+                        stroke={themeColor}
                         strokeWidth={2}
                         dot={(dotProps) => (
                             <SmartDot
@@ -320,7 +344,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                         type="monotone"
                         dataKey={fcKey}
                         name="Forecast"
-                        stroke={param.color}
+                        stroke={themeColor}
                         strokeWidth={2}
                         strokeOpacity={0.6}
                         strokeDasharray="5 3"
@@ -336,7 +360,7 @@ const ParamChart = memo(function ParamChart({ param, chartData, forecastData, st
                             type="monotone"
                             dataKey={maKey}
                             name="24h MA"
-                            stroke={param.color}
+                            stroke={themeColor}
                             strokeWidth={1.5}
                             strokeOpacity={0.45}
                             strokeDasharray="6 3"
@@ -426,7 +450,7 @@ const OceanChart = memo(function OceanChart({ data, activeParams, showMovingAver
 
     if (!data.length) {
         return (
-            <div className="glass-card flex items-center justify-center" style={{ height: 300, color: '#4db8e8' }}>
+            <div className="card flex items-center justify-center" style={{ height: 300, color: 'var(--color-abyss-300)' }}>
                 No data available — check your backend connection.
             </div>
         );

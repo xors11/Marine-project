@@ -38,12 +38,12 @@ export default function RapidIntensificationAlert({ summaryData }) {
 
     if (riEvent) {
         return (
-            <div className="bg-slate-900 border border-red-500/30 rounded-xl p-4">
+            <div className="card" style={{ borderLeft: '4px solid var(--color-danger)' }}>
                 <div className="flex items-center gap-2 mb-2">
-                    <span className="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-red-400 text-xs font-bold uppercase tracking-wider">Rapid Intensification Detected</span>
+                    <span className="inline-block w-3 h-3 rounded-full bg-[var(--color-danger)] animate-pulse" />
+                    <span className="text-[var(--color-danger)] text-xs font-bold uppercase tracking-wider">Rapid Intensification Detected</span>
                 </div>
-                <div className="text-white text-sm font-semibold">
+                <div className="text-[var(--color-abyss-100)] text-sm font-semibold">
                     ⚠ RAPID INTENSIFICATION — {riEvent.name !== 'UNNAMED' ? riEvent.name : 'Unknown Storm'} +{riEvent.delta} km/h — {riEvent.season}
                 </div>
             </div>
@@ -51,12 +51,12 @@ export default function RapidIntensificationAlert({ summaryData }) {
     }
 
     return (
-        <div className="bg-slate-900 border border-green-500/30 rounded-xl p-4">
+        <div className="card" style={{ borderLeft: '4px solid var(--color-green)' }}>
             <div className="flex items-center gap-2 mb-2">
-                <span className="inline-block w-3 h-3 rounded-full bg-green-500" />
-                <span className="text-green-400 text-xs font-bold uppercase tracking-wider">Conditions Stable</span>
+                <span className="inline-block w-3 h-3 rounded-full bg-[var(--color-green)]" />
+                <span className="text-[var(--color-green)] text-xs font-bold uppercase tracking-wider">Conditions Stable</span>
             </div>
-            <div className="text-slate-300 text-sm">
+            <div className="text-[var(--color-abyss-300)] text-sm">
                 ✓ CONDITIONS STABLE — No Rapid Intensification Detected
             </div>
         </div>

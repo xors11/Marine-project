@@ -77,25 +77,22 @@ export default function RecommendedActions({ species, msyUtilizationFn, critThre
     };
 
     return (
-        <div style={{
-            background: '#040d1a',
-            border: '0.5px solid #0d2135',
-            borderRadius: 9,
-            borderTop: '1.5px solid #22d3ee',
-            padding: '14px',
-            display: 'flex',
-            flexDirection: 'column',
-        }}>
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0f2d44', marginBottom: 12, display: 'block' }}>Recommended Interventions</span>
+        <div
+            className="card flex flex-col h-full"
+            style={{
+                borderTop: '2px solid var(--color-accent)',
+            }}
+        >
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-abyss-400)', marginBottom: 12, display: 'block' }}>Recommended Interventions</span>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
                 {actions.map((act, i) => {
-                    const typeColor = act.type === 'CRITICAL' ? '#f87171' : act.type === 'WARNING' ? '#fb923c' : act.type === 'INFO' ? '#22d3ee' : '#4ade80';
-                    const typeRgb   = act.type === 'CRITICAL' ? '248,113,113' : act.type === 'WARNING' ? '251,146,60' : act.type === 'INFO' ? '34,211,238' : '74,222,128';
+                    const typeColor = act.type === 'CRITICAL' ? 'var(--color-danger)' : act.type === 'WARNING' ? 'var(--color-amber)' : act.type === 'INFO' ? 'var(--color-accent)' : 'var(--color-green)';
+                    const typeRgb   = act.type === 'CRITICAL' ? '242,102,91' : act.type === 'WARNING' ? '240,169,78' : act.type === 'INFO' ? '45,212,191' : '111,207,151';
                     return (
                         <div key={i} style={{
-                            background: '#040f1f',
-                            border: '0.5px solid #0d2135',
+                            background: 'var(--color-abyss-950)',
+                            border: '1px solid var(--color-abyss-800)',
                             borderLeft: `2px solid ${typeColor}`,
                             borderRadius: 9,
                             padding: '12px 14px',
@@ -107,9 +104,9 @@ export default function RecommendedActions({ species, msyUtilizationFn, critThre
                             <div>
                                 <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6 }}>
                                     <span style={{ fontSize: 18, lineHeight: 1, flexShrink: 0 }}>{act.icon}</span>
-                                    <span style={{ fontWeight: 700, fontSize: 12, color: '#d4eef9', lineHeight: 1.3 }}>{act.title}</span>
+                                    <span style={{ fontWeight: 700, fontSize: 12, color: 'var(--color-abyss-100)', lineHeight: 1.3 }}>{act.title}</span>
                                 </div>
-                                <p style={{ fontSize: 11, color: '#2a4a62', lineHeight: 1.6 }}>{act.desc}</p>
+                                <p style={{ fontSize: 11, color: 'var(--color-abyss-400)', lineHeight: 1.6 }}>{act.desc}</p>
                             </div>
                             <button
                                 id={`btn-${act.actionId}`}
@@ -118,7 +115,7 @@ export default function RecommendedActions({ species, msyUtilizationFn, critThre
                                     width: '100%', fontSize: 11, fontWeight: 700, padding: '7px',
                                     borderRadius: 7, cursor: 'pointer',
                                     background: `rgba(${typeRgb}, 0.08)`,
-                                    border: `0.5px solid rgba(${typeRgb}, 0.35)`,
+                                    border: `1px solid rgba(${typeRgb}, 0.35)`,
                                     color: typeColor,
                                     transition: 'background 0.15s',
                                     fontFamily: 'inherit',
